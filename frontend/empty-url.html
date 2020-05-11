@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Error 404</title>
+</head>
+<body>
+  <h1>404 Error</h1>
+  <p>Page not found. Please go to <a href="https://mycms.simonho.net">MyCMS</a> to set the URL. The data field is: <span id="url-type"></span></p>
+
+  <script>
+    var urlParams = new URLSearchParams(window.location.search);
+    document.querySelector('#url-type').innerHTML = urlParams.get('url-type');
+  </script>
+</body>
+</html>

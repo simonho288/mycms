@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Put User Record example</title>
+</head>
+<body>
+  <script>
+    window.onload = async function() {
+      var data = {
+        email: 'go2@simonho.net',
+        created: new Date(),
+        products: [],
+        settings: {}
+      }
+      let resp = await fetch('/api/put-user-json', {
+        method: 'POST',
+        cache: 'no-cache',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      resp = await resp.json();
+      console.log(resp);
+    }
+  </script>
+</body>
+</html>

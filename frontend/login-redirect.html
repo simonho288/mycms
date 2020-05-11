@@ -1,0 +1,18 @@
+<html>
+  <head>
+    <script>
+// This small script is called by after-logged-in before redirect to dashboard. See index.js handleGoogleCallback() & handleFacebookCallback()
+const urlParams = new URLSearchParams(window.location.search);
+const userId = urlParams.get('uid');
+if (userId == null) {
+  window.location.replace('/error.html');
+} else {
+  localStorage.setItem('user_id', userId);
+  window.location.replace('/dashboard.html');
+}
+  </script>
+  </head>
+  <body>
+
+  </body>
+</html>

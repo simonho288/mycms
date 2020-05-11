@@ -1,0 +1,69 @@
+<!--
+  Debug URL: https://dev.simonho.net/test-paypal-order.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyCMS</title>
+</head>
+<body>
+  <script>
+    window.onload = function() {
+      document.getElementById("submit").addEventListener("click", onSubmitClicked);
+    };
+    
+    async function onSubmitClicked(evt) {
+      debugger
+      var data = {
+        user: 'simonho288@gmail.com',
+        orderId: new Date().getTime().toString(),
+        date: new Date().toISOString(),
+        customer: 'Payer Simon Ho',
+        shipping: {
+          address1: '123 Townsend St',
+          address2: 'Floor 6',
+          city: 'San Francisco',
+          province: 'CA',
+          postal_code: '94107',
+          country: 'US'
+        },
+        items: [{
+          productId: 'item001',
+          name: 'Apple 01',
+          image: 'http://upload.mycms.simonho.net/userdata/1bbb326b99244e7baac11a92394cc01f/prodimg_item001_00.jpg',
+          quantity: 1,
+          unitPrice: 111,
+          tax: 5
+        }, {
+          productId: 'item002',
+          name: 'Starwars Commander',
+          image: 'http://upload.mycms.simonho.net/userdata/1bbb326b99244e7baac11a92394cc01f/prodimg_item002_00.jpg',
+          quantity: 2,
+          unitPrice: 123.4,
+          tax: 9.2
+        }],
+      };
+      let resp = await fetch('/api/paypal-checkout', {
+        method: 'POST',
+        // redirect: 'follow',
+        // cache: 'no-cache',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      console.log(resp);
+      resp = await resp.json();
+      console.log(resp);
+      if (resp && resp.paypal_url) {
+        window.location.replace(resp.paypal_url);
+      }
+    };
+  </script>
+
+  <h1>Paypal Checkout for MyCMS test page</h1>
+  <button id="submit">Submit Cart Items to PayPal</button>
+</body>
+</html>

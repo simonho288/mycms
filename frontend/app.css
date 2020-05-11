@@ -1,0 +1,46 @@
+
+body {
+  margin-top: 0px!important;
+  height: 95%;
+}
+
+.align-center {
+  text-align: center;
+}
+
+.login-form {
+  margin-top: 80px;
+}
+
+.btn-block {
+  padding: 10px;
+}
+
+.margin-vertical-20 {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.margin-vertical-30 {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.margin-vertical-50 {
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+.margin-vertical-80 {
+  margin-top: 80px;
+  margin-bottom: 80px;
+}
+
+.img-file-preview {
+  width: 150px;
+  height: auto;
+}
+
+.product-item {
+  cursor: pointer;
+}

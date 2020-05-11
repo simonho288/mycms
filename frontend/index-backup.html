@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1, initial-scale=1.0">
+  <title>My-CMS</title>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css'>
+  <link rel='stylesheet' href='app.css'>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+</head>
+<body>
+  <script src="home.js"></script>
+
+  <div class="ui grid container">
+    <div class="sixteen wide column">
+      <div class="margin-vertical-30 align-center">
+        <h1>會員登入</h1>
+        <p>歡迎使用 My-CMS</p>
+      </div>
+
+      <form id="login-form" class="ui huge form login-form">
+        <div class="field">
+          <label>電腦地址</label>
+          <input type="email" name="email" placeholder="Email address">
+        </div>
+        <div class="field">
+          <label>密碼</label>
+          <input type="password" name="password" placeholder="Password">
+        </div>
+        <div class="field">
+          <div id="cb-rememberme" class="ui checkbox">
+            <input type="checkbox" tabindex="0" class="hidden">
+            <label>保存登入資料</label>
+          </div>
+        </div>
+        <button id="btn-login" class="fluid teal ui button">登入</button>
+        <div id="msg-error" class="ui error message">
+          <ul class="list">
+            <li>Invalid error</li>
+          </ul>
+        </div>
+      </form>
+
+      <div class="margin-vertical-30">
+        <div class="ui horizontal divider">
+          或者
+        </div>
+      </div>
+
+      <div class="ui pink labeled icon fluid button">
+        免費會員註冊
+        <i class="add icon"></i>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

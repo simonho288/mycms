@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "name": "worker",
+  "version": "1.0.0",
+  "description": "MyCMS Cloudflare Workers webapp",
+  "main": "index.js",
+  "author": "go@simonho.net",
+  "license": "MIT",
+  "dependencies": {
+    "@cloudflare/kv-asset-handler": "^0.0.5",
+    "assert": "^2.0.0",
+    "numeral": "^2.0.6",
+    "uuid": "^7.0.3"
+  }
+}

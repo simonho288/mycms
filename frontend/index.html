@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1, initial-scale=1.0">
+  <title>My-CMS</title>
+  <link rel="icon" href="images/favicon.ico" type="image/gif" sizes="16x16">
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css'>
+  <link rel='stylesheet' href='app.css'>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+</head>
+<body>
+  <script src="home.js"></script>
+
+  <div class="ui grid container">
+    <div class="sixteen wide column">
+      <div class="margin-vertical-20 align-center">
+        <h1 class="ui header">My-CMS</h1>
+        <h3 class="ui header">
+          <img src="/images/avt_simon.png" class="ui circular image">
+          <div class="content">
+            Software Developer
+            <div class="sub header"><a href="https://www.simonho.net">Simon Ho</a></div>
+          </div>
+        </h3>
+        <h2 class="ui header">User Login</h2>
+      </div>
+
+      <div class="ui segment">
+        <div class="ui one column very relaxed grid">
+          <div class="column">
+            <div class="btn-block">
+              <form method="post" action="/google_login">
+                <button id="btn-login-google" class = "ui huge fluid google plus button">
+                  <i class="google icon"></i>Login as Google
+                </button>
+              </form>
+            </div>
+          </div>
+          <div class="column">
+            <div class="ui horizontal divider">
+              or
+            </div>
+          </div>
+          <div class="column">
+            <div class="btn-block">
+              <form method="post" action="/facebook_login">
+                <button id="btn-login-facebook" class = "ui huge fluid facebook button">
+                  <i class="facebook icon"></i>Login as Facebook
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="margin-vertical-20 align-center">
+        <div class="ui icon negative message">
+          <i class="info circle icon"></i>
+          <div class="content">
+            <div class="header">Terms Of Usages</div>
+            <ol class="list">
+              <li>Free of charge</li>
+              <li>No number of products, orders limit</li>
+              <li>No number API calls limit</li>
+            </ol>
+          </div>
+        </div>
+        <div class="ui icon negative message">
+          <i class="info circle icon"></i>
+          <div class="content">
+            <div class="header">Terms and Conditions</div>
+            <ol class="list">
+              <li>This system is only supported by me, I will try my best to maintain it, but I cannot make any commitment</li>
+              <li>I will never sell, deliver, and export any user information to any third party, company or organization</li>
+              <li>Though I have tried my best to protect the security of the system, but there is no guarantee that no hacker can break into and steal data</li>
+              <li>The purpose of the system is only for the online store, and the content of the goods must not damage the interests of third parties</li>
+              <li>If this system causes any loss to you, the use or not is at your discretion, I will not pay any legal responsibility</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

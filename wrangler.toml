@@ -1,0 +1,14 @@
+name = "my-cms"
+type = "webpack"
+account_id = "[Your_CloudflareWorkers_AccountID]"
+# workers_dev = true
+route = "mycms.simonho.net/*"
+zone_id = "[Your_CloudflareWorkers_ZoneID]"
+
+kv-namespaces = [ 
+  { binding = "DB", id = "[Your_CloudflareWorkers_KvID]" }
+]
+
+[site]
+bucket = "./frontend/dist"
+entry-point = "cfw-backend"
