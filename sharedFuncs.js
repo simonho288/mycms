@@ -3,14 +3,14 @@ const fetch = require('node-fetch');
 
 const Keys = {
   Google: {
-    client_id: '767621401744-talkcfb4jpc97aac99me7fh714un0p4c.apps.googleusercontent.com',
-    client_secret: 'bzrt_Sl98o6YLBmxIpgGda_f',
+    client_id: '[Your_GoogleApp_ClientID]',
+    client_secret: '[Your_GoogleApp_ClientSecret]',
     scope: 'https://www.googleapis.com/auth/userinfo.email+https://www.googleapis.com/auth/userinfo.profile',
     redirect_path: '/auth/google/callback'
   },
   Facebook: {
-    client_id: '147719153341591',
-    client_secret: '0c66546ade04e048f081260fcb3a6e89',
+    client_id: '[Your_FacebookApp_ClientID]',
+    client_secret: '[Your_FacebookApp_ClientSecret]',
     scope: 'public_profile,email',
     redirect_path: '/auth/facebook/callback'
   }

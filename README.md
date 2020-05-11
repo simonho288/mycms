@@ -1,4 +1,10 @@
-# my-cms
+## Preface
+
+MyCMS is an open source free CMS for shoppers to input the products and provide payment callback (supports Paypal currently) to receive money. 
+
+## Architecture
+
+
 
 ## Installation
 
