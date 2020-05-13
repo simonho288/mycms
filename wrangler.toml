@@ -1,12 +1,12 @@
 name = "my-cms"
 type = "webpack"
-account_id = "[Your_CloudflareWorkers_AccountID]"
+account_id = "f776d2c7755479f2c24ad783910810dd"
 # workers_dev = true
 route = "mycms.simonho.net/*"
-zone_id = "[Your_CloudflareWorkers_ZoneID]"
+zone_id = "61096677a9478e1fa5fefc4b82cda0c7"
 
 kv-namespaces = [ 
-  { binding = "DB", id = "[Your_CloudflareWorkers_KvID]" }
+  { binding = "DB", id = "a147b2f28a704c54ba432b6b9173042f" }
 ]
 
 [site]

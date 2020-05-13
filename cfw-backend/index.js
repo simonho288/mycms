@@ -11,24 +11,7 @@ import { getAssetFromKV, mapRequestToAsset } from '@cloudflare/kv-asset-handler'
 
 const assert = require('assert');
 
-const CommonApi = require('../sharedFuncs.js');
-
-/*
-const Keys = {
-  Google: {
-    client_id: '767621401744-talkcfb4jpc97aac99me7fh714un0p4c.apps.googleusercontent.com',
-    client_secret: 'bzrt_Sl98o6YLBmxIpgGda_f',
-    scope: 'https://www.googleapis.com/auth/userinfo.email+https://www.googleapis.com/auth/userinfo.profile',
-    redirect_uri: 'https://mycms.simonho.net/auth/google/callback'
-  },
-  Facebook: {
-    client_id: '147719153341591',
-    client_secret: '0c66546ade04e048f081260fcb3a6e89',
-    scope: 'public_profile,email',
-    redirect_uri: 'https://mycms.simonho.net/auth/facebook/callback'
-  }
-};
-*/
+const SharedFuncs = require('../sharedFuncs.js');
 
 // We support the GET, POST, HEAD, and OPTIONS methods from any origin,
 // and accept the Content-Type header on requests. These headers must be
@@ -40,19 +23,27 @@ const CORS_HEADER = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
+
 /**
- * Setupt the common API
+ * Initialise the SharedFuncs
  */
-CommonApi.setDebugMode(true);
-CommonApi.setHost('https://mycms.simonho.net');
-CommonApi.setSaveUserJsonFn(async (email, data) => {
+SharedFuncs.setEnv({ // Used by SharedFuncs. Created using command: wrangler secret put XXX
+  SERVER_URL: SERVER_URL,
+  GOOGLE_APP_CLIENT_ID: GOOGLE_APP_CLIENT_ID,
+  GOOGLE_APP_CLIENT_SECRET: GOOGLE_APP_CLIENT_SECRET,
+  FACEBOOK_APP_CLIENT_ID: FACEBOOK_APP_CLIENT_ID,
+  FACEBOOK_APP_CLIENT_SECRET: FACEBOOK_APP_CLIENT_SECRET,
+});
+SharedFuncs.setDebugMode(true);
+SharedFuncs.setHost(SERVER_URL);
+SharedFuncs.setSaveUserJsonFn(async (email, data) => {
   assert(email);
   assert(typeof data === 'object');
 
   const key = `user:${email.toLowerCase()}`;
   await DB.put(key, JSON.stringify(data));
 });
-CommonApi.setLoadUserJsonFn(async (email) => {
+SharedFuncs.setLoadUserJsonFn(async (email) => {
   assert(email);
 
   const key = `user:${email.toLowerCase()}`;
@@ -243,7 +234,7 @@ function handlePrefix(prefix) {
  * Called by frontend to redirect to Google to display login window
  */
 async function handleGoogleLogin(event) {
-  let authUri = await CommonApi.googleLoginUrl();
+  let authUri = await SharedFuncs.googleLoginUrl();
   return Response.redirect(authUri, 301)
 } // handleGoogleLogin()
 
@@ -251,7 +242,7 @@ async function handleGoogleLogin(event) {
  * Called by frontend to redirect to Facebook to display login window
  */
 async function handleFacebookLogin(event) {
-  let authUri = await CommonApi.facebookLoginUrl();
+  let authUri = await SharedFuncs.facebookLoginUrl();
   return Response.redirect(authUri, 301);
 } // handleFacebookLogin()
 
@@ -275,7 +266,7 @@ async function handleGoogleCallback(event) {
   const params = { // Make same params with express
     code: code
   };
-  let redirectUrl = await CommonApi.googleOauth2(params);
+  let redirectUrl = await SharedFuncs.googleOauth2(params);
   let redirectUri = url.origin + redirectUrl;
   return Response.redirect(redirectUri, 301);
 
@@ -348,7 +339,7 @@ async function handleFacebookCallback(event) {
   const params = { // Make same params with express
     code: code
   };
-  let redirectUrl = await CommonApi.facebookOauth2(params);
+  let redirectUrl = await SharedFuncs.facebookOauth2(params);
   let redirectUri = url.origin + redirectUrl;
   return Response.redirect(redirectUri, 301);
 
@@ -398,7 +389,7 @@ async function handleGetUserJson(event) {
   // Extract the email from the email
   let email = pathname.substring('/api/get-user-json'.length + 1, pathname.length);
   const params = { email: email };
-  let json = await CommonApi.getUserJson(params);
+  let json = await SharedFuncs.getUserJson(params);
 
   return new Response(JSON.stringify(json), {
     headers: { 'Content-Type': 'application/json;charset=UTF-8' },
@@ -450,7 +441,7 @@ async function handlePutUserJson(event) {
   }
   
   let data = await req.json().catch(e => null);
-  await CommonApi.putUserJson(data);
+  await SharedFuncs.putUserJson(data);
 
   /*
   // console.log(data);
@@ -514,7 +505,7 @@ async function handlePaypalCheckout(event) {
       throw new Error('POST data must be JSON!');
 
     let data = await request.json();
-    let redirectUrl = await CommonApi.paypalCheckout(data);
+    let redirectUrl = await SharedFuncs.paypalCheckout(data);
     let rtnVal = {
       paypal_url: redirectUrl
     };
@@ -730,7 +721,7 @@ async function handlePaypalSuccess(event) {
       throw new Error('Must be GET request!');
     let params = _parseQueryString(request.url);
 
-    let redirectUrl = await CommonApi.paypalReturnSuccess(params);
+    let redirectUrl = await SharedFuncs.paypalReturnSuccess(params);
     return Response.redirect(redirectUrl, 301);    
   } catch (exp) {
     return new Response(JSON.stringify({ error: exp.message }), {
@@ -802,7 +793,7 @@ async function handlePaypalCancel(event) {
       throw new Error('Must be GET request!');
     let params = _parseQueryString(request.url);
 
-    let redirectUrl = await CommonApi.paypalReturnCancel(params);
+    let redirectUrl = await SharedFuncs.paypalReturnCancel(params);
     return Response.redirect(redirectUrl, 301);
   } catch (exp) {
     return new Response(JSON.stringify({ error: exp.message }), {

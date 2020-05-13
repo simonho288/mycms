@@ -3,18 +3,13 @@ const { v4: uuidv4 } = require('uuid');
 const numeral = require('numeral');
 const fetch = require('node-fetch');
 
-require('dotenv').config(); // Read the .env settings into env variable
 
 const Keys = {
   Google: {
-    client_id: '[Your_GoogleApp_ClientID]',
-    client_secret: '[Your_GoogleApp_ClientSecret]',
     scope: 'https://www.googleapis.com/auth/userinfo.email+https://www.googleapis.com/auth/userinfo.profile',
     redirect_path: '/auth/google/callback'
   },
   Facebook: {
-    client_id: '[Your_FacebookApp_ClientID]',
-    client_secret: '[Your_FacebookApp_ClientSecret]',
     scope: 'public_profile,email',
     redirect_path: '/auth/facebook/callback'
   }
@@ -26,23 +21,33 @@ const Keys = {
 let SharedFuncs = {
   // Local Express needs that
   setDebugMode(isDebug) {
+    assert(isDebug != null);
     this._isDebug = isDebug;
   },
 
   determinePayPalUrl(mode) {
+    assert(mode);
     return (mode == 'sandbox') ? 'https://api.sandbox.paypal.com' : 'https://api.paypal.com';
   },
 
   setHost(host) {
+    assert(host);
     this._host = host;
   },
 
   setSaveUserJsonFn(fn) {
+    assert(fn);
     this._putUserJsonFn = fn;
   },
 
   setLoadUserJsonFn(fn) {
+    assert(fn);
     this._getUserJsonFn = fn;
+  },
+
+  setEnv(json) {
+    assert(json);
+    this._env = json;
   },
 
   /////////////////////////////////////////////////////////////////////////////
@@ -335,19 +340,19 @@ let SharedFuncs = {
   }, // paypalReturnCancel()
 
   async googleLoginUrl() {
-    assert(process.env.GOOGLE_APP_CLIENT_ID); // If not found, check the .env file of this setting
+    assert(this._env.GOOGLE_APP_CLIENT_ID); // If not found, check the .env file of this setting
     const scope = encodeURI(Keys.Google.scope);
     let redirectUri = encodeURI(this._host + Keys.Google.redirect_path);
-    let authUri = `https://accounts.google.com/o/oauth2/v2/auth?scope=${scope}&access_type=offline&include_granted_scopes=true&state=state_parameter_passthrough_value&redirect_uri=${redirectUri}&response_type=code&client_id=${process.env.GOOGLE_APP_CLIENT_ID}&prompt=consent`;
+    let authUri = `https://accounts.google.com/o/oauth2/v2/auth?scope=${scope}&access_type=offline&include_granted_scopes=true&state=state_parameter_passthrough_value&redirect_uri=${redirectUri}&response_type=code&client_id=${this._env.GOOGLE_APP_CLIENT_ID}&prompt=consent`;
 
     return authUri;
   },
 
   async facebookLoginUrl() {
-    assert(process.env.FACEBOOK_APP_CLIENT_ID); // If not found, check the .env file of this setting
+    assert(this._env.FACEBOOK_APP_CLIENT_ID); // If not found, check the .env file of this setting
     const scope = Keys.Facebook.scope;
     let redirectUri = encodeURI(this._host + Keys.Facebook.redirect_path);
-    let authUri = `https://www.facebook.com/v5.0/dialog/oauth?client_id=${process.env.FACEBOOK_APP_CLIENT_ID}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
+    let authUri = `https://www.facebook.com/v5.0/dialog/oauth?client_id=${this._env.FACEBOOK_APP_CLIENT_ID}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
   
     return authUri;
   },
@@ -376,8 +381,8 @@ let SharedFuncs = {
 
   async googleOauth2(params) {
     console.log('handleGoogleOauth2cb()')
-    assert(process.env.GOOGLE_APP_CLIENT_ID); // If not found, check the .env file of this setting
-    assert(process.env.GOOGLE_APP_CLIENT_SECRET); // If not found, check the .env file of this setting
+    assert(this._env.GOOGLE_APP_CLIENT_ID); // If not found, check the .env file of this setting
+    assert(this._env.GOOGLE_APP_CLIENT_SECRET); // If not found, check the .env file of this setting
   
     // let url = new URL(request.url)
     // let code = url.searchParams.get('code')
@@ -390,8 +395,8 @@ let SharedFuncs = {
     // console.log('url', url.host)
     const data = {
       'code': code,
-      'client_id': process.env.GOOGLE_APP_CLIENT_ID,
-      'client_secret': process.env.GOOGLE_APP_CLIENT_SECRET,
+      'client_id': this._env.GOOGLE_APP_CLIENT_ID,
+      'client_secret': this._env.GOOGLE_APP_CLIENT_SECRET,
       'redirect_uri': this._host + Keys.Google.redirect_path,
       'grant_type': 'authorization_code'
     };
@@ -462,8 +467,8 @@ let SharedFuncs = {
 
   async facebookOauth2(params) {
     console.log('facebookOauth2()')
-    assert(process.env.FACEBOOK_APP_CLIENT_ID); // If not found, check the .env file of this setting
-    assert(process.env.FACEBOOK_APP_CLIENT_SECRET); // If not found, check the .env file of this setting
+    assert(this._env.FACEBOOK_APP_CLIENT_ID); // If not found, check the .env file of this setting
+    assert(this._env.FACEBOOK_APP_CLIENT_SECRET); // If not found, check the .env file of this setting
   
     // let url = new URL(request.url)
     // let code = url.searchParams.get('code')
@@ -478,7 +483,7 @@ let SharedFuncs = {
     // console.log('code:', code);
   
     let redirect_uri = this._host + Keys.Facebook.redirect_path;
-    let result = await fetch(`https://graph.facebook.com/v5.0/oauth/access_token?client_id=${process.env.FACEBOOK_APP_CLIENT_ID}&redirect_uri=${redirect_uri}&client_secret=${process.env.FACEBOOK_APP_CLIENT_SECRET}&code=${code}`);
+    let result = await fetch(`https://graph.facebook.com/v5.0/oauth/access_token?client_id=${this._env.FACEBOOK_APP_CLIENT_ID}&redirect_uri=${redirect_uri}&client_secret=${this._env.FACEBOOK_APP_CLIENT_SECRET}&code=${code}`);
     result = await result.json();
   
     let accessToken = result.access_token;

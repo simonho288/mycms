@@ -6,7 +6,7 @@
  * Everything here must be re-implemneted in Cloudflare Workers in cfw-backend/index.js **
  */
 
-"use strict"
+'use strict'
 
 const assert = require('assert');
 const Bundler = require('parcel-bundler');
@@ -20,11 +20,12 @@ const bodyParser = require('body-parser');
 const LocalStorage = require('node-localstorage').LocalStorage;
 const SharedFuncs = require('./sharedFuncs.js');
 
+require('dotenv').config(); // Read the .env settings into env variable
+
 /**
  * In development, local Express server uses localStorage to simulate Cloudflare Workers KV as a database to store user JSON.
  */
 const localStorage = new LocalStorage('./data');
-
 const port = 3000; // Express Server port#
 
 // Setup Express server tools/libs
@@ -41,6 +42,7 @@ app.use(express.static('frontend/dist', {
 /**
  * Setup the sharedFuncs
  */
+SharedFuncs.setEnv(process.env); // See the values in .env
 SharedFuncs.setDebugMode(true);
 SharedFuncs.setHost(process.env.SERVER_URL);
 /**
