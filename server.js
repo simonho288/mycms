@@ -18,7 +18,6 @@ const app = express();
 const bodyParser = require('body-parser');
 // const fetch = require('node-fetch');
 const LocalStorage = require('node-localstorage').LocalStorage;
-// const { v4: uuidv4 } = require('uuid');
 const SharedFuncs = require('./sharedFuncs.js');
 
 /**
@@ -43,7 +42,7 @@ app.use(express.static('frontend/dist', {
  * Setup the sharedFuncs
  */
 SharedFuncs.setDebugMode(true);
-SharedFuncs.setHost('https://dev.simonho.net');
+SharedFuncs.setHost(process.env.SERVER_URL);
 /**
  * Two Callback functions for sharedFuncs to load/save userJson. In the Express server, use localStorage as data store.
  */
@@ -161,4 +160,4 @@ const parcelOptions = {
 };
 const bundler = new Bundler(indexFile, parcelOptions);
 app.use(bundler.middleware());
-app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`));
+app.listen(port, () => console.log(`Development server app listening origin: ${process.env.SERVER_URL}`));

@@ -1,5 +1,9 @@
+const assert = require('assert');
+const { v4: uuidv4 } = require('uuid');
 const numeral = require('numeral');
 const fetch = require('node-fetch');
+
+require('dotenv').config(); // Read the .env settings into env variable
 
 const Keys = {
   Google: {
@@ -331,17 +335,19 @@ let SharedFuncs = {
   }, // paypalReturnCancel()
 
   async googleLoginUrl() {
+    assert(process.env.GOOGLE_APP_CLIENT_ID); // If not found, check the .env file of this setting
     const scope = encodeURI(Keys.Google.scope);
     let redirectUri = encodeURI(this._host + Keys.Google.redirect_path);
-    let authUri = `https://accounts.google.com/o/oauth2/v2/auth?scope=${scope}&access_type=offline&include_granted_scopes=true&state=state_parameter_passthrough_value&redirect_uri=${redirectUri}&response_type=code&client_id=${Keys.Google.client_id}&prompt=consent`;
+    let authUri = `https://accounts.google.com/o/oauth2/v2/auth?scope=${scope}&access_type=offline&include_granted_scopes=true&state=state_parameter_passthrough_value&redirect_uri=${redirectUri}&response_type=code&client_id=${process.env.GOOGLE_APP_CLIENT_ID}&prompt=consent`;
 
     return authUri;
   },
 
   async facebookLoginUrl() {
+    assert(process.env.FACEBOOK_APP_CLIENT_ID); // If not found, check the .env file of this setting
     const scope = Keys.Facebook.scope;
     let redirectUri = encodeURI(this._host + Keys.Facebook.redirect_path);
-    let authUri = `https://www.facebook.com/v5.0/dialog/oauth?client_id=${Keys.Facebook.client_id}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
+    let authUri = `https://www.facebook.com/v5.0/dialog/oauth?client_id=${process.env.FACEBOOK_APP_CLIENT_ID}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
   
     return authUri;
   },
@@ -362,7 +368,7 @@ let SharedFuncs = {
         orders: [],
         settings: {}
       }
-      await this._putUserJsonFn(email, JSON.stringify(value));
+      await this._putUserJsonFn(email, value);
     }
 
     return email;
@@ -370,6 +376,8 @@ let SharedFuncs = {
 
   async googleOauth2(params) {
     console.log('handleGoogleOauth2cb()')
+    assert(process.env.GOOGLE_APP_CLIENT_ID); // If not found, check the .env file of this setting
+    assert(process.env.GOOGLE_APP_CLIENT_SECRET); // If not found, check the .env file of this setting
   
     // let url = new URL(request.url)
     // let code = url.searchParams.get('code')
@@ -378,12 +386,12 @@ let SharedFuncs = {
       return '/';
     }
   
-    console.log('code:', code);
+    // console.log('code:', code);
     // console.log('url', url.host)
     const data = {
       'code': code,
-      'client_id': Keys.Google.client_id,
-      'client_secret': Keys.Google.client_secret,
+      'client_id': process.env.GOOGLE_APP_CLIENT_ID,
+      'client_secret': process.env.GOOGLE_APP_CLIENT_SECRET,
       'redirect_uri': this._host + Keys.Google.redirect_path,
       'grant_type': 'authorization_code'
     };
@@ -454,6 +462,8 @@ let SharedFuncs = {
 
   async facebookOauth2(params) {
     console.log('facebookOauth2()')
+    assert(process.env.FACEBOOK_APP_CLIENT_ID); // If not found, check the .env file of this setting
+    assert(process.env.FACEBOOK_APP_CLIENT_SECRET); // If not found, check the .env file of this setting
   
     // let url = new URL(request.url)
     // let code = url.searchParams.get('code')
@@ -465,10 +475,10 @@ let SharedFuncs = {
       return '/';
     }
   
-    console.log('code:', code);
+    // console.log('code:', code);
   
     let redirect_uri = this._host + Keys.Facebook.redirect_path;
-    let result = await fetch(`https://graph.facebook.com/v5.0/oauth/access_token?client_id=${Keys.Facebook.client_id}&redirect_uri=${redirect_uri}&client_secret=${Keys.Facebook.client_secret}&code=${code}`);
+    let result = await fetch(`https://graph.facebook.com/v5.0/oauth/access_token?client_id=${process.env.FACEBOOK_APP_CLIENT_ID}&redirect_uri=${redirect_uri}&client_secret=${process.env.FACEBOOK_APP_CLIENT_SECRET}&code=${code}`);
     result = await result.json();
   
     let accessToken = result.access_token;
