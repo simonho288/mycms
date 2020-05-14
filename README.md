@@ -4,7 +4,7 @@ MyCMS is an open source free CMS for shoppers to input the products and provide 
 
 ## Architecture
 
-
+![Test image](https://alslab-cms-ojs2.s3-ap-southeast-1.amazonaws.com/1474511893630_SN001.JPG)
 
 ## Installation
 
