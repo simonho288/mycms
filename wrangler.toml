@@ -1,0 +1,14 @@
+name = "my-cms"
+type = "webpack"
+account_id = "f776d2c7755479f2c24ad783910810dd" # Change to your Cloudflare Workers account ID
+# workers_dev = true
+route = "mycms.simonho.net/*"
+zone_id = "61096677a9478e1fa5fefc4b82cda0c7" # Change to your Cloudflare Workers zone ID
+
+kv-namespaces = [ 
+  { binding = "DB", id = "a147b2f28a704c54ba432b6b9173042f" } # Change to your Cloudflare Workers KV ID
+]
+
+[site]
+bucket = "./frontend/dist"
+entry-point = "cfw-backend"

@@ -4,4 +4,3 @@ data/*
 dist/
 .vscode/launch.json
 .env
-wrangler.toml
