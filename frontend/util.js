@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 
 const Constant = {
   numberFormat: '0,0',
-  currencyFormat: '$0,0[.].0',
+  currencyFormat: '$0,0[.]00',
   dateFormat: 'YYYY-MM-DD',
   datetimeFormat: 'YYYY-MM-DD h:mm',
   urlRegex: /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi

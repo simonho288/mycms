@@ -620,7 +620,7 @@ export class ScreenProducts {
       mkup += `  <img class="ui avatar image" src="${imageSrc}">`;
       mkup += `  <div class="content">`;
       mkup += `  <a data-product-id="${product.productId}" class="header product-item">${product.productId}</a>`;
-      mkup += `  <div class="name">${product.name} - \$${Util.formatNumber(product.regularPrice)}</div>`;
+      mkup += `  <div class="name">${product.name} - ${Util.formatCurrency(product.regularPrice)}</div>`;
       mkup += `  </div>`;
       mkup += `</div>`;
     });
