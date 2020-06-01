@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyCMS Sample Theme (Reference Implementation)</title>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css'>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+  <style>
+    body {
+      padding: 1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="ui container">
+    <h1 class="ui header">Checkout</h1>
+    <div class="ui items">
+      <div class="item">
+        <div class="image">
+          <img src="http://upload.mycms.simonho.net/userdata/1bbb326b99244e7baac11a92394cc01f/prodimg_sku-banana-1_00.jpg">
+        </div>
+        <div class="content">
+          <a class="header">Banana</a>
+          <div class="meta">
+            Quantity: 1
+          </div>
+          <div class="description">
+            <p>Price: <s>1.29</s>&nbsp;0.99</p>
+          </div>
+          <div class="extra">
+            Amount: 0.99
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ui divider"></div>
+    <div>
+      <p>
+        Total amount: <span id="total_amount"></span>
+      </p>
+      <p>
+        <button id="paypal" class="ui primary button"><i class="cc paypal icon"></i> Pay with PayPal</button>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      $('#paypal').click(payWithPaypal);
+
+      calTotalAmount();
+    });
+
+    function calTotalAmount() {
+      var cartItems = sessionStorage.getItem('shopping_cart');
+      cartItems = cartItems != null ? JSON.parse(cartItems) : [];
+
+      let totalAmount = 0;
+      cartItems.forEach(i => {
+        totalAmount += i.qty * i.sellPrice
+      });
+      $('#total_amount').html(numeral(totalAmount).format('0.0[0]'));
+    }
+
+    function payWithPaypal(evt) {
+      debugger
+    }
+  </script>
+</body>
+</html>

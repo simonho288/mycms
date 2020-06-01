@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyCMS Sample Theme (Reference Implementation)</title>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css'>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+  <style>
+    .container {
+      padding: 50px;
+    }
+  </style>
+</head>
+<body>
+  <div id="cart-icon" class="ui right aligned text container"></div>
+  <div class="ui center aligned text container">
+    <h1 class="ui header">Product 1</h1>
+    <p class="lead">
+      Use this document as a way to quickly start any new project.
+    </p>
+    <p>
+      <img src="http://upload.mycms.simonho.net/userdata/1bbb326b99244e7baac11a92394cc01f/prodimg_sku-banana-1_00.jpg" />
+    </p>
+    <p>
+      <img src="http://upload.mycms.simonho.net/userdata/1bbb326b99244e7baac11a92394cc01f/prodimg_sku-banana-1_01.jpg" />
+    </p>
+    <p>
+      <button class="ui primary button btn-add-cart" data-product-id="sku-banana-1" data-name="Banana" data-regular-price="1.29" data-sell-price="0.99" data-tax="0">Add To Cart</button>
+    </p>
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      refreshCartIcon();
+
+      $('.btn-add-cart').click(function(evt) {
+        var $tar = $(evt.currentTarget);
+        var productId = $tar.data('product-id');
+        var name = $tar.data('name');
+        var regularPrice = $tar.data('regular-price');
+        var sellPrice = $tar.data('sell-price');
+        var tax = $tar.data('tax');
+        var cartItems = sessionStorage.getItem('shopping_cart');
+        cartItems = cartItems != null ? JSON.parse(cartItems) : [];
+        var found = cartItems.find(i => i.productId === productId);
+        if (found) {
+          found.qty++;
+        } else {
+          cartItems.push({
+            productId: productId,
+            name: name,
+            regularPrice: regularPrice,
+            sellPrice: sellPrice,
+            qty: 1
+          });
+        }
+        sessionStorage.setItem('shopping_cart', JSON.stringify(cartItems));
+        refreshCartIcon();
+      });
+    });
+
+    function refreshCartIcon() {
+      var cartItems = sessionStorage.getItem('shopping_cart');
+      cartItems = cartItems != null ? JSON.parse(cartItems) : [];
+      var totalItems = 0;
+      cartItems.forEach(i => {
+        totalItems += i.qty
+      });
+      if (totalItems === 0) {
+        $('#cart-icon').html('Cart: Empty');
+      } else {
+        $('#cart-icon').html(`Cart: ${totalItems} <a class="ui mini button" href='/checkout.html'>Checkout</a>`);
+      }
+    }
+  </script>
+</body>
+</html>
