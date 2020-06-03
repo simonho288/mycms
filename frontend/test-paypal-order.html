@@ -15,12 +15,14 @@
     };
     
     async function onSubmitClicked(evt) {
-      debugger
       var data = {
         user: 'simonho288@gmail.com',
         orderId: new Date().getTime().toString(),
         date: new Date().toISOString(),
-        customer: 'Payer Simon Ho',
+        customer: {
+          name: 'Payer Simon Ho',
+          email: 'go@simonho.net'
+        },
         shipping: {
           address1: '123 Townsend St',
           address2: 'Floor 6',

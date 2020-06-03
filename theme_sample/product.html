@@ -15,7 +15,7 @@
 </head>
 <body>
   <div id="cart-icon" class="ui right aligned text container"></div>
-  <div class="ui center aligned text container">
+  <div class="ui center aligned text container product">
     <h1 class="ui header">Product 1</h1>
     <p class="lead">
       Use this document as a way to quickly start any new project.
@@ -36,7 +36,9 @@
       refreshCartIcon();
 
       $('.btn-add-cart').click(function(evt) {
+        debugger
         var $tar = $(evt.currentTarget);
+        var imgUrl = $tar.closest('.product').find('img').attr('src');
         var productId = $tar.data('product-id');
         var name = $tar.data('name');
         var regularPrice = $tar.data('regular-price');
@@ -53,11 +55,14 @@
             name: name,
             regularPrice: regularPrice,
             sellPrice: sellPrice,
-            qty: 1
+            qty: 1,
+            tax: tax,
+            img_url: imgUrl
           });
         }
         sessionStorage.setItem('shopping_cart', JSON.stringify(cartItems));
         refreshCartIcon();
+        window.scroll(0, 0); // Emphasis the cart icon
       });
     });
 
