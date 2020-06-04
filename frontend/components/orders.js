@@ -64,7 +64,7 @@ export class ScreenOrders {
     mkup += `<thead><tr>
       <th>Order No.</th>
       <th>Date</th>
-      <th>Customer</th>
+      <th>Customer name</th>
       <th>Total Amount</th>
       <th>Total Qty.</th>
       <th>Payment</th>
@@ -78,7 +78,7 @@ export class ScreenOrders {
       mkup += `<tr data-orderid="${order.orderId}">`;
       mkup += `<td data-label="Order No.">${order.orderId}</td>`;
       mkup += `<td data-label="Date">${Util.formatDate(order.date)}</td>`;
-      mkup += `<td data-label="Customer">${order.customer}</td>`;
+      mkup += `<td data-label="Customer name">${order.customer.name}</td>`;
       mkup += `<td data-label="Total Amount">${Util.formatCurrency(order.amount)}</td>`;
       mkup += `<td data-label="Total Qty.">${Util.formatNumber(totalItems)}</td>`;
       mkup += `<td data-label="Payment">${order.payment_status}</td>`;
@@ -170,8 +170,12 @@ export class ScreenOrders {
     <input type="text" value="${Util.formatDatetime(order.date)}" readonly>
   </div>
   <div class="field">
-    <label>Customer</label>
-    <input type="text" value="${order.customer}" readonly>
+    <label>Customer name</label>
+    <input type="text" value="${order.customer.name}" readonly>
+  </div>
+  <div class="field">
+    <label>Customer email</label>
+    <input type="text" value="${order.customer.email}" readonly>
   </div>
   <div class="field">
     <label>Total Amount</label>

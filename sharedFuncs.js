@@ -75,6 +75,8 @@ let SharedFuncs = {
     if (params.customer == null) throw new Error('Data must includes customer!');
     if (params.shipping == null) throw new Error('Data must includes shipping json!');
     if (params.items == null) throw new Error('Data must includes items json!');
+    if (params.customer.name == null) throw new Error('Data must includes customer name!');
+    if (params.customer.email == null) throw new Error('Data must includes customer email!');
 
     let userJson = await this._getUserJsonFn(params.user);
     if (userJson == null) throw new Error('User not found in db!');
@@ -82,7 +84,7 @@ let SharedFuncs = {
     if (userJson.orders.find(o => o.id == params.orderId) != null) { // Is order exists?
       throw new Error('Order already exists!');
     }
-    const currency = userJson.settings.paypalCurrency;
+    const currency = userJson.settings.currency;
 
     // Calculate the order amount
     let amount = 0, totalTax = 0;
@@ -138,7 +140,7 @@ let SharedFuncs = {
         shipping: {
           method: userJson.settings.shippingProvider,
           name: {
-            full_name: params.customer
+            full_name: params.customer.name
           },
           address: {
             address_line_1: params.shipping.address1,
@@ -171,8 +173,8 @@ let SharedFuncs = {
     }
 
     // Get Paypal Access Token. Ref: https://developer.paypal.com/docs/api/get-an-access-token-curl/
-    const clientId = userJson.settings.paypalClientID;
-    const clientSecret = userJson.settings.paypalClientSecret;
+    const clientId = userJson.settings.paypal.clientID;
+    const clientSecret = userJson.settings.paypal.clientSecret;
     let ppUserBase64 = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
     let ppRes = await fetch(paypalUrl + '/v1/oauth2/token', {
       method: 'POST',
@@ -209,6 +211,7 @@ let SharedFuncs = {
     if (ppRes.error_description) throw new Error(ppRes.error_description);
 
     // Store the order to the KV
+    userJson.orders = []; // clear all previous orders
     userJson.orders.push({
       orderId: params.orderId,
       date: new Date().toISOString(),
@@ -254,8 +257,8 @@ let SharedFuncs = {
     if (cmsOrder == null) throw new Error('Order not found in our system!');
 
     // Variables for Paypal API
-    const clientId = userJson.settings.paypalClientID;
-    const clientSecret = userJson.settings.paypalClientSecret;
+    const clientId = userJson.settings.paypal.clientID;
+    const clientSecret = userJson.settings.paypal.clientSecret;
     const paypalUrl = this.determinePayPalUrl(userJson.settings.paypal.mode);
 
     // Capture the order: https://developer.paypal.com/docs/api/orders/v2/#orders_capture
@@ -295,10 +298,10 @@ let SharedFuncs = {
     this._putUserJsonFn(params.user, userJson);
 
     let url;
-    if (userJson.settings.siteUrl && userJson.settings.orderSuccessPage) {
+    if (userJson.settings.siteUrl && userJson.settings.paypal.orderSuccessPage) {
       url = userJson.settings.siteUrl;
-      if (userJson.settings.orderSuccessPage[0] != '/') url += '/';
-      url += userJson.settings.orderSuccessPage;
+      if (userJson.settings.paypal.orderSuccessPage[0] != '/') url += '/';
+      url += userJson.settings.paypal.orderSuccessPage;
     } else {
       url = '/empty-url.html?url-type=order-success';
     }
@@ -323,16 +326,16 @@ let SharedFuncs = {
       throw new Error('Order not found!');
     }
     order.payment_status = 'cancelled';
-    await this._putUserJsonFun(params.user, userJson);
+    await this._putUserJsonFn(params.user, userJson);
 
     // Construct the redirect Url
     let url;
-    if (userJson.settings.siteUrl && userJson.settings.orderCancelPage) {
+    if (userJson.settings.siteUrl && userJson.settings.paypal.orderCancelPage) {
       url = userJson.settings.siteUrl;
-      if (userJson.settings.orderCancelPage[0] != '/') {
+      if (userJson.settings.paypal.orderCancelPage[0] != '/') {
         url += '/';
       }
-      url += userJson.settings.orderCancelPage;
+      url += userJson.settings.paypal.orderCancelPage;
     } else {
       url = '/empty-url.html?url-type=order-cancel';
     }

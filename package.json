@@ -21,7 +21,7 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.5",
-    "date-fns": "^2.12.0",
+    "date-fns": "^2.14.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "format": "^0.2.2",
@@ -30,7 +30,7 @@
     "uuid": "^7.0.3"
   },
   "devDependencies": {
-    "node-localstorage": "^2.1.5",
+    "node-localstorage": "^2.1.6",
     "parcel-bundler": "^1.12.4"
   }
 }
