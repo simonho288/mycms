@@ -211,7 +211,7 @@ let SharedFuncs = {
     if (ppRes.error_description) throw new Error(ppRes.error_description);
 
     // Store the order to the KV
-    userJson.orders = []; // clear all previous orders
+    // userJson.orders = []; // DEBUG: clear all previous orders
     userJson.orders.push({
       orderId: params.orderId,
       date: new Date().toISOString(),
@@ -223,7 +223,7 @@ let SharedFuncs = {
     });
 
     // Save the userJson to db
-    this._putUserJsonFn(params.user, userJson);
+    await this._putUserJsonFn(params.user, userJson);
 
     // Return the URL to frontend
     let redirectUrl;
@@ -252,6 +252,12 @@ let SharedFuncs = {
     // Retrieve the user record
     let userJson = await this._getUserJsonFn(params.user);
     if (userJson == null) throw new Error('User not found in db!');
+
+    // return new Response(JSON.stringify(userJson), {
+    //   headers: {
+    //     'content-type': 'application/json'
+    //   }
+    // });
 
     let cmsOrder = userJson.orders.find(rec => rec.orderId == params.order);
     if (cmsOrder == null) throw new Error('Order not found in our system!');
@@ -291,11 +297,11 @@ let SharedFuncs = {
       }
     }
 
-    // CLEAR ALL PRIOR ORDERS
-    userJson.orders = [ cmsOrder ];
+    // userJson.orders = []; // DEBUG: CLEAR ALL PRIOR ORDERS
+    userJson.orders.push(cmsOrder);
 
     // Save the userJson to db
-    this._putUserJsonFn(params.user, userJson);
+    await this._putUserJsonFn(params.user, userJson);
 
     let url;
     if (userJson.settings.siteUrl && userJson.settings.paypal.orderSuccessPage) {

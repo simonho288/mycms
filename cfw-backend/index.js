@@ -722,7 +722,7 @@ async function handlePaypalSuccess(event) {
     let params = _parseQueryString(request.url);
 
     let redirectUrl = await SharedFuncs.paypalReturnSuccess(params);
-    return Response.redirect(redirectUrl, 301);    
+    return Response.redirect(redirectUrl, 301);
   } catch (exp) {
     return new Response(JSON.stringify({ error: exp.message }), {
       headers: {
