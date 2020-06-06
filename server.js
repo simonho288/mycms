@@ -11,6 +11,7 @@
 const assert = require('assert');
 const Bundler = require('parcel-bundler');
 const express = require('express');
+const cors = require('cors');
 const cookieParser = require('cookie-parser')
 const url = require('url');
 // const numeral = require('numeral');
@@ -31,6 +32,7 @@ const port = 3000; // Express Server port#
 // Setup Express server tools/libs
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cors());
 app.use(cookieParser()); // need cookieParser middleware before we can do anything with cookies
 // app.use(express.static('frontend/dist')); // This is the parcelJS output dir. See below parcelOptions
 app.use(express.static('frontend/dist', {

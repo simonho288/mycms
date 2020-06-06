@@ -210,21 +210,6 @@ let SharedFuncs = {
     }
     if (ppRes.error_description) throw new Error(ppRes.error_description);
 
-    // Store the order to the KV
-    // userJson.orders = []; // DEBUG: clear all previous orders
-    userJson.orders.push({
-      orderId: params.orderId,
-      date: new Date().toISOString(),
-      customer: params.customer,
-      payment_status: 'pending', // Initial status is 'pending'
-      items: params.items,
-      amount: amount,
-      paypal_order_id: ppRes.id
-    });
-
-    // Save the userJson to db
-    await this._putUserJsonFn(params.user, userJson);
-
     // Return the URL to frontend
     let redirectUrl;
     ppRes.links.forEach(link => {
@@ -233,9 +218,24 @@ let SharedFuncs = {
       }
     });
     if (redirectUrl) {
+      // Store the order to the KV
+      // userJson.orders = []; // DEBUG: clear all previous orders
+      userJson.orders.push({
+        orderId: params.orderId,
+        date: new Date().toISOString(),
+        customer: params.customer,
+        payment_status: 'pending', // Initial status is 'pending'
+        items: params.items,
+        amount: amount,
+        paypal_order_id: ppRes.id
+      });
+
+      // Save the userJson to db
+      await this._putUserJsonFn(params.user, userJson);
+
       return redirectUrl;
     } else {
-      throw new Error('Cannot find redirect url from paypal payment result!');
+      throw ppRes;
     }
   }, // paypalCheckout()
 

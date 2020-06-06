@@ -377,7 +377,6 @@
     }
 
     async function payWithPaypal(evt) {
-      debugger
       var $form = $('#shipping');
       var name = $form.find('input[name="name"]').val().trim();
       var email = $form.find('input[name="email"]').val().trim();
@@ -420,7 +419,6 @@
         };
         console.log(cartItems);
 
-        debugger
         // Convert the cart items to MyCMS items list
         for (var i = 0; i < cartItems.length; ++i) {
           var item = cartItems[i];
@@ -434,13 +432,16 @@
           });
         }
 
-        let resp = await fetch('/api/paypal-checkout', {
+        let resp = await fetch('https://mycms.simonho.net/api/paypal-checkout', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(json)
         });
+        resp = await resp.json();
+        debugger
+        window.location.href = resp.result;
       }
     }
   </script>
