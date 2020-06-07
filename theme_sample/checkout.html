@@ -413,11 +413,10 @@
             city: city,
             province: province,
             postal_code: postal,
-            country: country
+            country: country.toUpperCase()
           },
           items: [] // will be added below
         };
-        console.log(cartItems);
 
         // Convert the cart items to MyCMS items list
         for (var i = 0; i < cartItems.length; ++i) {
@@ -432,6 +431,8 @@
           });
         }
 
+        console.log(json);
+
         let resp = await fetch('https://mycms.simonho.net/api/paypal-checkout', {
           method: 'POST',
           headers: {
@@ -440,8 +441,10 @@
           body: JSON.stringify(json)
         });
         resp = await resp.json();
-        debugger
-        window.location.href = resp.result;
+
+        if (resp.paypal_url) {
+          window.location.href = resp.paypal_url;
+        }
       }
     }
   </script>

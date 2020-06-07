@@ -36,7 +36,6 @@
       refreshCartIcon();
 
       $('.btn-add-cart').click(function(evt) {
-        debugger
         var $tar = $(evt.currentTarget);
         var imgUrl = $tar.closest('.product').find('img').attr('src');
         var productId = $tar.data('product-id');
