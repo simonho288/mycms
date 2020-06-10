@@ -4,3 +4,4 @@ data/*
 dist/
 .vscode/launch.json
 .env
+temp/*
