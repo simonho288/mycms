@@ -86,6 +86,19 @@ app.get('/api/get-user-json/:email', async (req, res) => {
   res.json(json);
 });
 
+app.get('/api/gen-static-website/:email', async (req, res) => {
+  /*
+  let zipfile = await SharedFuncs.genStaticWebsite(req.params);
+
+  // Return the result to the client
+  res.set({ 'content-type': 'application/zip' });
+  res.sendFile(zipfile);
+  */
+ res.set({ 'content-type': 'text/html' });
+ res.send(await SharedFuncs.genStaticWebsite(req.params));
+  res.end();
+});
+
 app.put('/api/put-user-json', async (req, res) => {
   let params = req.body;
   await SharedFuncs.putUserJson(params);

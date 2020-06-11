@@ -85,6 +85,12 @@ let template = `
   </div>
   <div class="ui form big attached fluid segment">
     <div class="field">
+      <h4 class="header">Generate static website</h4>
+      {{gen-static-website}}
+    </div>
+  </div>
+  <div class="ui form big attached fluid segment">
+    <div class="field">
       <h4 class="header">Data export (JSON format)</h4>
       {{download-product-anchor}}
     </div>
@@ -123,6 +129,10 @@ export class ScreenSettings {
 
     let anchor = `<a id="btn-export-json" href="/api/get-user-json/${this._userRec.email}" class="ui secondary button" target="_blank">Download</a>`;
     mkup = mkup.replace('{{download-product-anchor}}', anchor);
+    $('#app').html(mkup);
+
+    anchor = `<a id="btn-export-json" href="/api/gen-static-website/${this._userRec.email}" class="ui secondary button" target="_blank">Generate &amp; download</a>`;
+    mkup = mkup.replace('{{gen-static-website}}', anchor);
     $('#app').html(mkup);
   } // setMainScreen()
 

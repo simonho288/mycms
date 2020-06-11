@@ -2,7 +2,9 @@ const assert = require('assert');
 const { v4: uuidv4 } = require('uuid');
 const numeral = require('numeral');
 const fetch = require('node-fetch');
-
+const extract = require('extract-zip');
+const ejs = require('ejs');
+const fs = require('fs');
 
 const Keys = {
   Google: {
@@ -431,47 +433,9 @@ let SharedFuncs = {
     console.log(result);
     let userId = await this.createOrLoginUser(result.email);
   
-    // Outputs will be:
-    // {
-    //   "id": "103729431481034928215",
-    //   "email": "simonho288@gmail.com",
-    //   "verified_email": true,
-    //   "name": "Simon Ho",
-    //   "given_name": "Simon",
-    //   "family_name": "Ho",
-    //   "picture": "https://lh3.googleusercontent.com/a-/AAuE7mCBuILxtP7LQyMTqlPYO0ak69zn-14ktTPfgLmXUw",
-    //   "locale": "en"
-    // }
-  
     // Redirect with cookie in ExpressJS
     let redirectUri = `/login-redirect.html?uid=${userId}`;
     return redirectUri;
-
-  /*
-    // Forward request to origin, get response.
-    let response = await fetch(request);
-  
-    // Copy Response object so that we can edit headers to add HTTP redirect.
-    response = new Response(response.body, {
-      status: 302,
-      headers: {
-        // 'Set-Cookie': `name=${result.email}`,
-        'Location': url.protocol + '//' + url.host + '/getcookie'
-      }
-    }, response);
-  
-    // Save the return info to cookie
-    appendCookie(response.headers, 'user_googleid', result.id, 5);
-    appendCookie(response.headers, 'user_email', result.email, 5);
-    appendCookie(response.headers, 'user_name', result.name, 5);
-    appendCookie(response.headers, 'user_avatar', result.picture, 5);
-    appendCookie(response.headers, 'user_locale', result.locale, 5);
-    appendCookie(response.headers, 'user_givenname', result.given_name, 5);
-    appendCookie(response.headers, 'user_familyname', result.family_name, 5);
-  
-    // Go HTTP redirect
-    return response;
-  */
   }, // googleOauth2()
 
   async facebookOauth2(params) {
@@ -509,55 +473,75 @@ let SharedFuncs = {
     // Redirect with cookie in ExpressJS
     let redirectUri = `/login-redirect.html?uid=${userId}`;
     return redirectUri;
-  
-    // return new Response(JSON.stringify(grResult), {
-    //   headers: { 'content-type': 'application/json' },
-    // })
-  
-    // https://oauth-server-2.simonho.workers.dev/
-  
-    // req.session.user_id = await createNewUser()
-    // req.session.access_token = accessToken
-  
-    // Outputs will be:
-    // {
-    //   "name": "Simon Ho",
-    //   "email": "go@simonho.net",
-    //   "picture": {
-    //     "data": {
-    //       "height": 200,
-    //       "is_silhouette": false,
-    //       "url": "https://platform-lookaside.fbsbx.com/platform/profilepic/?asid=10156841747671328&height=200&width=200&ext=1580150034&hash=AeTSfq8TGVn2AT4i",
-    //       "width": 200
-    //     }
-    //   },
-    //   "id": "10156841747671328"
-    // }
-  
-  /*
-    // Forward request to origin, get response.
-    let response = await fetch(request)
-  
-    // Copy Response object so that we can edit headers to add HTTP redirect.
-    response = new Response(response.body, {
-      status: 302,
-      headers: {
-        // 'Set-Cookie': `name=${result.email}`,
-        'Location': url.protocol + '//' + url.host + '/getcookie'
-      }
-    }, response)
-  
-    // Save the return info to cookie
-    appendCookie(response.headers, 'user_facebookid', grResult.id, 5)
-    appendCookie(response.headers, 'user_email', grResult.email, 5)
-    appendCookie(response.headers, 'user_name', grResult.name, 5)
-    appendCookie(response.headers, 'user_avatar', grResult.picture.data.url, 5)
-  
-    // Go HTTP redirect
-    return response
-  */
   }, // facebookOauth2()
-  
+
+  async genStaticWebsite(params) {
+    let user = params.email.toLowerCase().trim();
+    if (user == null) throw 'No user specified!';
+
+    const ejsOpts = {};
+    const tempDir = 'temp';
+    let userJson = await this._getUserJsonFn(user);
+    let outFilePath;
+    let rendered;
+    let outputFileNames = [];
+
+    // Check the required files existenace
+    const indexFilePath = `${__dirname}/${tempDir}/${user}/index.ejs`;
+    if (!fs.existsSync(indexFilePath)) {
+      throw 'index.ejs not exists!'
+    }
+    const productFilePath = `${__dirname}/${tempDir}/${user}/product.ejs`;
+    if (!fs.existsSync(productFilePath)) {
+      throw 'product.ejs not exists!'
+    }
+    const checkoutFilePath = `${__dirname}/${tempDir}/${user}/checkout.ejs`;
+    if (!fs.existsSync(checkoutFilePath)) {
+      throw 'checkout.ejs not exists!'
+    }
+
+    // TODO: Extract the ZIP file into temp dir. Such as /temp/[user-email]
+
+    // Handle the index.ejs
+    rendered = await ejs.renderFile(indexFilePath, userJson, ejsOpts);
+    outFilePath = `${__dirname}/${tempDir}/${user}/index.html`
+    await fs.writeFileSync(outFilePath, rendered);
+    outputFileNames.push(outFilePath);
+
+    // Handle the product.ejs
+    for (let i = 0; i < userJson.products.length; ++i) {
+      let product = userJson.products[i];
+      // Convert image0..7 to images array
+      let images = [];
+      product.image0 != null ? images.push(product.image0) : null;
+      product.image1 != null ? images.push(product.image1) : null;
+      product.image2 != null ? images.push(product.image2) : null;
+      product.image3 != null ? images.push(product.image3) : null;
+      product.image4 != null ? images.push(product.image4) : null;
+      product.image5 != null ? images.push(product.image5) : null;
+      product.image6 != null ? images.push(product.image6) : null;
+      product.image7 != null ? images.push(product.image7) : null;
+      product.sellPrice = product.sellPrice != null ? product.sellPrice : product.regularPrice;
+      product.images = images;
+      let data = {
+        product: product,
+        settings: userJson.settings
+      };
+      rendered = await ejs.renderFile(productFilePath, data, ejsOpts);
+      outFilePath = `${__dirname}/${tempDir}/${user}/${product.productId}.html`
+      await fs.writeFileSync(outFilePath, rendered);
+      outputFileNames.push(outFilePath);
+    }
+
+    // Handle the checkout.ejs
+    rendered = await ejs.renderFile(checkoutFilePath, userJson, ejsOpts);
+    outFilePath = `${__dirname}/${tempDir}/${user}/checkout.html`
+    await fs.writeFileSync(outFilePath, rendered);
+    outputFileNames.push(outFilePath);
+
+    return rendered;
+  }, // genStaticWebsite()
+
 } // SharedFuncs
 
 module.exports = SharedFuncs;
