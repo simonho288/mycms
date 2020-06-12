@@ -341,23 +341,23 @@
   <script id="cart-item" type="text/template">
     <div class="item">
       <div class="image">
-        <img src="<%= image %>">
+        <img src="{{= img_url }}">
       </div>
       <div class="content">
-        <a class="header"><%= name %></a>
+        <a class="header">{{= name }}</a>
         <div class="meta">
-          Quantity: <%= quantity %>
+          Quantity: {{= qty }}
         </div>
         <div class="description">
-          <% if (sellPrice != regularPrice) { %>
-            <p>Price: <s><%= regularPrice %></s>&nbsp;<%= sellPrice %></p>
-          <% } else { %>
-            <p>Price: <%= regularPrice %></p>
-          <% } %>
-          <p>Tax: <%= tax %></p>
+          {{ if (sellPrice != regularPrice) { }}
+            <p>Price: <s>{{= regularPrice }}</s>&nbsp;{{= sellPrice }}</p>
+          {{ } else { }}
+            <p>Price: {{= regularPrice }}</p>
+          {{ } }}
+          <p>Tax: {{= tax }}</p>
         </div>
         <div class="extra">
-          Amount: <%= amount %>
+          Amount: {{= amount }}
         </div>
       </div>
     </div>
@@ -372,20 +372,40 @@
       renderSummary();
     });
 
+    function formatCurrency(value) {
+      return '$' + numeral(value).format('0[.]00');
+    }
+
+    // Render the shopping cart by every item in the cart.
     function renderCarts() {
-      debugger
       var template = $('#cart-item').html();
+      // Alter the underscore template syntax
+      _.templateSettings = {
+        interpolate: /\{\{=([\s\S]+?)\}\}/g,
+        evaluate: /\{\{([\s\S]+?)\}\}/g,
+        // interpolate: /\{\{(.+?)\}\}/g
+      };
       var compiler = _.template(template);
       var markup = '';
 
       var cartItems = sessionStorage.getItem('shopping_cart');
       cartItems = cartItems != null ? JSON.parse(cartItems) : [];
       cartItems.forEach(item => {
-        markup += compiler(item);
+        var item2 = {};
+        item2.img_url = item.img_url;
+        item2.name = item.name;
+        item2.productId = item.productId;
+        item2.qty = item.qty;
+        item2.regularPrice = formatCurrency(item.regularPrice);
+        item2.sellPrice = formatCurrency(item.sellPrice);
+        item2.tax = formatCurrency(item.tax);
+        item2.amount = formatCurrency(item.sellPrice * item.qty);
+        markup += compiler(item2);
       });
       $('#cart-items').html(markup);
     }
 
+    // Render the bottom order summmary
     function renderSummary() {
       var cartItems = sessionStorage.getItem('shopping_cart');
       cartItems = cartItems != null ? JSON.parse(cartItems) : [];
@@ -396,11 +416,12 @@
         totalAmount += item.qty * item.sellPrice;
         totalTax += item.qty * item.tax;
       });
-      $('#summary #tax').html(numeral(totalTax).format('0.0[0]'));
-      $('#summary #total_amount').html(numeral(totalAmount).format('0.0[0]'));
+      $('#summary #tax').html(formatCurrency(totalTax));
+      $('#summary #total_amount').html(formatCurrency(totalAmount));
     }
 
     async function payWithPaypal(evt) {
+      debugger;
       var $form = $('#shipping');
       var name = $form.find('input[name="name"]').val().trim();
       var email = $form.find('input[name="email"]').val().trim();

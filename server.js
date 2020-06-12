@@ -19,7 +19,7 @@ const app = express();
 const bodyParser = require('body-parser');
 // const fetch = require('node-fetch');
 const LocalStorage = require('node-localstorage').LocalStorage;
-const SharedFuncs = require('./sharedFuncs.js');
+const MyCMS = require('./mycms.js');
 
 require('dotenv').config(); // Read the .env settings into env variable
 
@@ -42,22 +42,22 @@ app.use(express.static('frontend/dist', {
 })); // This is the parcelJS output dir. See below parcelOptions
 
 /**
- * Setup the sharedFuncs
+ * Setup the MyCMS
  */
-SharedFuncs.setEnv(process.env); // See the values in .env
-SharedFuncs.setDebugMode(true);
-SharedFuncs.setHost(process.env.SERVER_URL);
+MyCMS.setEnv(process.env); // See the values in .env
+MyCMS.setDebugMode(true);
+MyCMS.setHost(process.env.SERVER_URL);
 /**
- * Two Callback functions for sharedFuncs to load/save userJson. In the Express server, use localStorage as data store.
+ * Two Callback functions for MyCMS to load/save userJson. In the Express server, use localStorage as data store.
  */
-SharedFuncs.setSaveUserJsonFn((email, data) => {
+MyCMS.setSaveUserJsonFn((email, data) => {
   assert(email);
   assert(typeof data === 'object');
 
   const key = `user:${email.toLowerCase()}`;
   localStorage.setItem(key, JSON.stringify(data));
 });
-SharedFuncs.setLoadUserJsonFn((email) => {
+MyCMS.setLoadUserJsonFn((email) => {
   assert(email);
 
   const key = `user:${email.toLowerCase()}`;
@@ -79,7 +79,7 @@ app.get('/', (req, res) => {
 
 app.get('/api/get-user-json/:email', async (req, res) => {
   let params = req.params;
-  let json = await SharedFuncs.getUserJson(params);
+  let json = await MyCMS.getUserJson(params);
 
   // Return the result to the client
   res.set({ 'content-type': 'application/json' });
@@ -88,20 +88,20 @@ app.get('/api/get-user-json/:email', async (req, res) => {
 
 app.get('/api/gen-static-website/:email', async (req, res) => {
   /*
-  let zipfile = await SharedFuncs.genStaticWebsite(req.params);
+  let zipfile = await MyCMS.genStaticWebsite(req.params);
 
   // Return the result to the client
   res.set({ 'content-type': 'application/zip' });
   res.sendFile(zipfile);
   */
  res.set({ 'content-type': 'text/html' });
- res.send(await SharedFuncs.genStaticWebsite(req.params));
+ res.send(await MyCMS.genStaticWebsite(req.params));
   res.end();
 });
 
 app.put('/api/put-user-json', async (req, res) => {
   let params = req.body;
-  await SharedFuncs.putUserJson(params);
+  await MyCMS.putUserJson(params);
 
   res.set({ 'content-type': 'application/json' });
   res.json({
@@ -115,7 +115,7 @@ app.put('/api/put-user-json', async (req, res) => {
  */
 app.post('/api/paypal-checkout', async (req, res) => {
   let data = req.body;
-  let redirectUrl = await SharedFuncs.paypalCheckout(data);
+  let redirectUrl = await MyCMS.paypalCheckout(data);
   res.json({
     paypal_url: redirectUrl
   })
@@ -129,7 +129,7 @@ app.post('/api/paypal-checkout', async (req, res) => {
 app.get('/api/paypal-payment-success', async (req, res) => {
   let params = req.query;
 
-  let redirectUrl = await SharedFuncs.paypalReturnSuccess(params);
+  let redirectUrl = await MyCMS.paypalReturnSuccess(params);
   res.redirect(301, redirectUrl);
 });
 
@@ -140,29 +140,29 @@ app.get('/api/paypal-payment-success', async (req, res) => {
 app.get('/api/paypal-payment-cancel', async (req, res) => {
   let params = req.query;
 
-  let redirectUrl = await SharedFuncs.paypalReturnCancel(params);
+  let redirectUrl = await MyCMS.paypalReturnCancel(params);
   res.redirect(301, redirectUrl);
 });
 
 app.post('/google_login', async (req, res) => {
-  let authUri = await SharedFuncs.googleLoginUrl();
+  let authUri = await MyCMS.googleLoginUrl();
   res.redirect(authUri);
 });
 
 app.post('/facebook_login', async (req, res) => {
-  let authUri = await SharedFuncs.facebookLoginUrl();
+  let authUri = await MyCMS.facebookLoginUrl();
   res.redirect(authUri);
 });
 
 app.get('/auth/google/callback', async (req, res) => {
   let params = req.query;
-  let redirectUrl = await SharedFuncs.googleOauth2(params);
+  let redirectUrl = await MyCMS.googleOauth2(params);
   res.redirect(301, redirectUrl);
 });
 
 app.get('/auth/facebook/callback', async (req, res) => {
   let params = req.query;
-  let redirectUrl = await SharedFuncs.facebookOauth2(params);
+  let redirectUrl = await MyCMS.facebookOauth2(params);
   res.redirect(301, redirectUrl);
 });
 

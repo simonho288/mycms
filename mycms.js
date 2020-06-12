@@ -1,3 +1,7 @@
+/**
+ * MyCMS - Main server App to handle all mycms tasks
+ */
+
 const assert = require('assert');
 const { v4: uuidv4 } = require('uuid');
 const numeral = require('numeral');
@@ -20,7 +24,7 @@ const Keys = {
 /**
  * Common APIs for server.js & index.js
  */
-let SharedFuncs = {
+let MyCMS = {
   // Local Express needs that
   setDebugMode(isDebug) {
     assert(isDebug != null);
@@ -480,38 +484,54 @@ let SharedFuncs = {
     if (user == null) throw 'No user specified!';
 
     const ejsOpts = {};
-    const tempDir = 'temp';
+    const srcRootDir = 'theme_sample_backup'; // temporary use for development
+    const dstRootDir = 'temp';
+    // const tempDir = 'temp';
     let userJson = await this._getUserJsonFn(user);
     let outFilePath;
     let rendered;
     let outputFileNames = [];
 
     // Check the required files existenace
-    const indexFilePath = `${__dirname}/${tempDir}/${user}/index.ejs`;
+    const indexFilePath = `${__dirname}/${srcRootDir}/${user}/index.ejs`;
     if (!fs.existsSync(indexFilePath)) {
       throw 'index.ejs not exists!'
     }
-    const productFilePath = `${__dirname}/${tempDir}/${user}/product.ejs`;
+    const productFilePath = `${__dirname}/${srcRootDir}/${user}/product.ejs`;
     if (!fs.existsSync(productFilePath)) {
       throw 'product.ejs not exists!'
     }
-    const checkoutFilePath = `${__dirname}/${tempDir}/${user}/checkout.ejs`;
+    const checkoutFilePath = `${__dirname}/${srcRootDir}/${user}/checkout.ejs`;
     if (!fs.existsSync(checkoutFilePath)) {
       throw 'checkout.ejs not exists!'
     }
+    const orderSuccessFilePath = `${__dirname}/${srcRootDir}/${user}/order-success.ejs`;
+    if (!fs.existsSync(orderSuccessFilePath)) {
+      throw 'order-success.ejs not exists!'
+    }
+    const orderCancelFilePath = `${__dirname}/${srcRootDir}/${user}/order-cancel.ejs`;
+    if (!fs.existsSync(orderCancelFilePath)) {
+      throw 'order-cancel.ejs not exists!'
+    }
 
-    // TODO: Extract the ZIP file into temp dir. Such as /temp/[user-email]
+    // TODO: Extract the ZIP file into source dir. Such as /temp/[user-email]
+
+    // Create the destination directory if not exists
+    let outPath = `${__dirname}/${dstRootDir}/${user}`;
+    if (!fs.existsSync(outPath)) {
+      fs.mkdirSync(outPath);
+    }
 
     // Handle the index.ejs
     rendered = await ejs.renderFile(indexFilePath, userJson, ejsOpts);
-    outFilePath = `${__dirname}/${tempDir}/${user}/index.html`
-    await fs.writeFileSync(outFilePath, rendered);
-    outputFileNames.push(outFilePath);
+    outFilePath = `${outPath}/index.html`;
+    fs.writeFileSync(outFilePath, rendered);
+    outputFileNames.push(outFilePath); // Add to zip files list
 
     // Handle the product.ejs
     for (let i = 0; i < userJson.products.length; ++i) {
       let product = userJson.products[i];
-      // Convert image0..7 to images array
+      // Make an images array for ejs template from user JSON's image0..7
       let images = [];
       product.image0 != null ? images.push(product.image0) : null;
       product.image1 != null ? images.push(product.image1) : null;
@@ -528,20 +548,32 @@ let SharedFuncs = {
         settings: userJson.settings
       };
       rendered = await ejs.renderFile(productFilePath, data, ejsOpts);
-      outFilePath = `${__dirname}/${tempDir}/${user}/${product.productId}.html`
-      await fs.writeFileSync(outFilePath, rendered);
-      outputFileNames.push(outFilePath);
+      outFilePath = `${outPath}/${product.productId}.html`;
+      fs.writeFileSync(outFilePath, rendered);
+      outputFileNames.push(outFilePath); // Add to zip files list
     }
 
     // Handle the checkout.ejs
     rendered = await ejs.renderFile(checkoutFilePath, userJson, ejsOpts);
-    outFilePath = `${__dirname}/${tempDir}/${user}/checkout.html`
-    await fs.writeFileSync(outFilePath, rendered);
-    outputFileNames.push(outFilePath);
+    outFilePath = `${outPath}/checkout.html`;
+    fs.writeFileSync(outFilePath, rendered);
+    outputFileNames.push(outFilePath); // Add to zip files list
 
-    return rendered;
+    // Handle the order-success.ejs
+    rendered = await ejs.renderFile(orderSuccessFilePath, userJson, ejsOpts);
+    outFilePath = `${outPath}/order-success.html`;
+    fs.writeFileSync(outFilePath, rendered);
+    outputFileNames.push(outFilePath); // Add to zip files list
+
+    // Hanlde the order-cancel.ejs
+    rendered = await ejs.renderFile(orderCancelFilePath, userJson, ejsOpts);
+    outFilePath = `${outPath}/order-cancel.html`;
+    fs.writeFileSync(outFilePath, rendered);
+    outputFileNames.push(outFilePath); // Add to zip files list
+
+    return 'Files generated success';
   }, // genStaticWebsite()
 
-} // SharedFuncs
+} // MyCMS
 
-module.exports = SharedFuncs;
+module.exports = MyCMS;
