@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyCMS Sample Theme (Reference Implementation)</title>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css'>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+  <style>
+    .container {
+      padding: 50px;
+    }
+  </style>
+</head>
+<body>
+  <div id="cart-icon" class="ui right aligned text container"></div>
+  <div class="ui center aligned text container product">
+    <h1 class="ui header"><%= product.name %></h1>
+    <p class="lead">
+      <%= product.description %>
+    </p>
+    <% product.images.forEach(function(image) { %>
+      <p>
+        <img src="<%= image %>" />
+      </p>
+    <% }); %>
+    <p>
+      <button class="ui primary button btn-add-cart" data-product-id="<%= product.productId %>" data-name="<%= product.name %>" data-regular-price="<%= product.regularPrice %>" data-sell-price="<%= product.sellPrice %>" data-tax="<%= product.tax %>">Add To Cart</button>
+    </p>
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      refreshCartIcon();
+
+      $('.btn-add-cart').click(function(evt) {
+        var $tar = $(evt.currentTarget);
+        var imgUrl = $tar.closest('.product').find('img').attr('src');
+        var productId = $tar.data('product-id');
+        var name = $tar.data('name');
+        var regularPrice = $tar.data('regular-price');
+        var sellPrice = $tar.data('sell-price');
+        var tax = $tar.data('tax');
+        var cartItems = sessionStorage.getItem('shopping_cart');
+        cartItems = cartItems != null ? JSON.parse(cartItems) : [];
+        var found = cartItems.find(i => i.productId === productId);
+        if (found) {
+          found.qty++;
+        } else {
+          cartItems.push({
+            productId: productId,
+            name: name,
+            regularPrice: regularPrice,
+            sellPrice: sellPrice,
+            qty: 1,
+            tax: tax,
+            img_url: imgUrl
+          });
+        }
+        sessionStorage.setItem('shopping_cart', JSON.stringify(cartItems));
+        refreshCartIcon();
+        window.scroll(0, 0); // Emphasis the cart icon
+      });
+    });
+
+    function refreshCartIcon() {
+      var cartItems = sessionStorage.getItem('shopping_cart');
+      cartItems = cartItems != null ? JSON.parse(cartItems) : [];
+      var totalItems = 0;
+      cartItems.forEach(i => {
+        totalItems += i.qty
+      });
+      if (totalItems === 0) {
+        $('#cart-icon').html('Cart: Empty');
+      } else {
+        $('#cart-icon').html(`Cart: ${totalItems} <a class="ui mini button" href='/checkout.html'>Checkout</a>`);
+      }
+    }
+  </script>
+</body>
+</html>
