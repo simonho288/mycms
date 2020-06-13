@@ -87,77 +87,83 @@ export let Util = {
     return $dfd;
   },
 
-  resizeFileInputImageToDataUrl: function(data, width) {
+  makeSquareImage: function(image, dimension) {
+    let canvas = document.createElement('canvas');
+    canvas.width = dimension;
+    canvas.height = dimension;
+    let ctx = canvas.getContext('2d');
+    let dim = this.calAspectRatio(image.width, image.height, dimension);
+    ctx.drawImage(image, dim.dx, dim.dy, dim.width, dim.height);
+    return canvas;
+  },
+
+  resizeFileInputImageToDataUrl: function(data, dimension) {
     console.log('resizeFileInputImageToDataUrl()');
     console.assert(data);
-    console.assert(width);
+    console.assert(dimension);
 
-    var self = this;
-    var $dfd = $.Deferred();
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-    var image = new Image();
+    let self = this;
+    let $dfd = $.Deferred();
+    let image = new Image();
     image.onload = function() {
-      if (image.width > width) {
-        ctx.drawImage(image, 0, 0);
-        var rstImage = self.resizeImageToDataUrl(image, width);
-        $dfd.resolve(rstImage);
-      } else {
-        $dfd.resolve(image);
-      }
+      let canvas = self.makeSquareImage(image, dimension);
+      $dfd.resolve(canvas.toDataURL('image/jpeg', 0.8));
     };
     image.src = data;
 
     return $dfd;
   }, // resizeFileInputImageToDataUrl()
 
-  resizeFileInputImageToBlob(data, width) {
+  resizeFileInputImageToBlob(data, dimension) {
     console.assert(data);
-    console.assert(width);
+    console.assert(dimension);
 
+    let self = this;
     return new Promise((resolve, reject) => {
-      var self = this;
-      var canvas = document.createElement('canvas');
-      var ctx = canvas.getContext('2d');
-      var image = new Image();
+      let image = new Image();
       image.onload = async function() {
-        ctx.drawImage(image, 0, 0);
-        if (image.width > width) {
-          let blob = await self.resizeImageToBlob(image, width);
+        let canvas = self.makeSquareImage(image, dimension);
+        canvas.toBlob(function(blob) {
           resolve(blob);
-        } else {
-          let blob = await self.resizeImageToBlob(image, image.width);
-          resolve(blob);
-        }
+        }, 'image/jpeg', 0.8);
       };
       image.src = data;
     });
   }, // resizeFileInputImageToBlob()
+
+  calAspectRatio(width, height, dimension) {
+    let aspect = width / height;
+    let dstwid, dstheg;
+    if (width > height) {
+      dstheg = dimension;
+      dstwid = Math.floor(dimension * aspect);
+    } else {
+      dstwid = dimension;
+      dstheg = Math.floor(dimension / aspect);
+    }
+    return {
+      aspect: aspect,
+      width: dstwid,
+      height: dstheg,
+      dx: dimension / 2 - dstwid / 2,
+      dy: dimension / 2 - dstheg / 2,
+    };
+  },
 
   // Resize (reduce image resolution) a HTML5 image using HTML5 canvas.
   // This returns JPEG image base64 string instead of binary
   resizeImageToDataUrl(img, dimension) {
     console.log('resizeImageToDataUrl()');
 
-    var aspect = img.width / img.height;
-    var dstwid, dstheg;
-    if (img.width > img.height) {
-      dstwid = dimension;
-      dstheg = Math.floor(dimension / aspect);
-    } else {
-      dstheg = dimension;
-      dstwid = Math.floor(dimension * aspect);
-    }
+    let dim = this.calAspectRatio(img.width, img.height, dimension);
 
     // Create the canvas
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext("2d");
-    canvas.width = dstwid;
-    canvas.height = dstheg;
+    canvas.width = dim.width;
+    canvas.height = dim.height;
 
-    // var x = dimension / 2 - dstwid / 2;
-    // var y = dimension / 2 - dstheg / 2;
-    ctx.drawImage(img, 0, 0, dstwid, dstheg);
+    ctx.drawImage(img, 0, 0, dim.width, dim.height);
 
     return canvas.toDataURL('image/jpeg', 0.8);
   }, // resizeImageToDataUrl

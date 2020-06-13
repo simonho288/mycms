@@ -680,14 +680,14 @@ export class ScreenProducts {
     let $image7 = $form.find('input[name="input-image-7"]');
     let s3result7 = await this.resizeImageAndUpload(s3, $image7[0], productId, '07');
 
-    let image0 = s3result0 ? 'http://upload.mycms.simonho.net/' + s3result0.key : null;
-    let image1 = s3result1 ? 'http://upload.mycms.simonho.net/' + s3result1.key : null;
-    let image2 = s3result2 ? 'http://upload.mycms.simonho.net/' + s3result2.key : null;
-    let image3 = s3result3 ? 'http://upload.mycms.simonho.net/' + s3result3.key : null;
-    let image4 = s3result4 ? 'http://upload.mycms.simonho.net/' + s3result4.key : null;
-    let image5 = s3result5 ? 'http://upload.mycms.simonho.net/' + s3result5.key : null;
-    let image6 = s3result6 ? 'http://upload.mycms.simonho.net/' + s3result6.key : null;
-    let image7 = s3result7 ? 'http://upload.mycms.simonho.net/' + s3result7.key : null;
+    let image0 = s3result0 ? s3result0.Location : null;
+    let image1 = s3result1 ? s3result1.Location : null;
+    let image2 = s3result2 ? s3result2.Location : null;
+    let image3 = s3result3 ? s3result3.Location : null;
+    let image4 = s3result4 ? s3result4.Location : null;
+    let image5 = s3result5 ? s3result5.Location : null;
+    let image6 = s3result6 ? s3result6.Location : null;
+    let image7 = s3result7 ? s3result7.Location : null;
 
     return { image0, image1, image2, image3, image4, image5, image6, image7 };
   } // uploadProductImages()
