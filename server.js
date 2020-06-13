@@ -46,6 +46,7 @@ app.use(express.static('frontend/dist', {
  */
 MyCMS.setEnv(process.env); // See the values in .env
 MyCMS.setDebugMode(true);
+if (process.env.SERVER_URL == null) throw 'Environment variable "SERVER_URL" not specified!';
 MyCMS.setHost(process.env.SERVER_URL);
 /**
  * Two Callback functions for MyCMS to load/save userJson. In the Express server, use localStorage as data store.
@@ -170,11 +171,13 @@ app.get('/auth/facebook/callback', async (req, res) => {
  * Uses ParcelJS to build the frontend codes
  * Ref: https://en.parceljs.org/api.html
  */
-const indexFile = 'frontend/*.html';
-const parcelOptions = {
-  outDir: './frontend/dist',
-  hmr: false
-};
-const bundler = new Bundler(indexFile, parcelOptions);
-app.use(bundler.middleware());
+if (process.env.NODE_ENV === 'development') {
+  const indexFile = 'frontend/*.html';
+  const parcelOptions = {
+    outDir: './frontend/dist',
+    hmr: false
+  };
+  const bundler = new Bundler(indexFile, parcelOptions);
+  app.use(bundler.middleware());
+}
 app.listen(port, () => console.log(`Development server app listening origin: ${process.env.SERVER_URL}`));
