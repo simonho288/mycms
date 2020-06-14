@@ -213,7 +213,7 @@ export let Util = {
     let userRec = await res.json();
 
     // Save the userRec to localStorage
-    console.log(userRec);
+    // console.log(userRec);
     return userRec;
   }, // getUserRecord()
 

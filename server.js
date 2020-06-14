@@ -14,6 +14,8 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser')
 const url = require('url');
+const zip = require('express-easy-zip');
+const fileUpload = require('express-fileupload');
 // const numeral = require('numeral');
 const app = express();
 const bodyParser = require('body-parser');
@@ -33,6 +35,10 @@ const port = 3000; // Express Server port#
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
+app.use(zip());
+app.use(fileUpload({
+  limits: { fileSize: 50 * 1024 * 1024 },
+}));
 app.use(cookieParser()); // need cookieParser middleware before we can do anything with cookies
 // app.use(express.static('frontend/dist')); // This is the parcelJS output dir. See below parcelOptions
 app.use(express.static('frontend/dist', {
@@ -87,7 +93,7 @@ app.get('/api/get-user-json/:email', async (req, res) => {
   res.json(json);
 });
 
-app.get('/api/gen-static-website/:email', async (req, res) => {
+app.post('/api/gen-static-website', async (req, res) => {
   /*
   let zipfile = await MyCMS.genStaticWebsite(req.params);
 
@@ -95,9 +101,10 @@ app.get('/api/gen-static-website/:email', async (req, res) => {
   res.set({ 'content-type': 'application/zip' });
   res.sendFile(zipfile);
   */
- res.set({ 'content-type': 'text/html' });
- res.send(await MyCMS.genStaticWebsite(req.params));
-  res.end();
+  // res.set({ 'content-type': 'text/html' });
+  // res.send(await MyCMS.genStaticWebsite(req, res));
+  // res.end();
+  await MyCMS.genStaticWebsite(req, res);
 });
 
 app.put('/api/put-user-json', async (req, res) => {

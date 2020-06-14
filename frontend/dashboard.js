@@ -3,6 +3,7 @@
 import { ScreenSettings } from './components/settings.js';
 import { ScreenProducts } from './components/products.js';
 import { ScreenOrders } from './components/orders.js';
+import { ScreenGenerate } from './components/generate.js';
 import { Util } from './util.js';
 
 $(document).ready(function() {
@@ -42,6 +43,7 @@ var App = {
     $('#nav-settings').off().on('click', this.onSwitchSettings.bind(this));
     $('#nav-products').off().on('click', this.onSwitchProducts.bind(this));
     $('#nav-orders').off().on('click', this.onSwitchOrders.bind(this));
+    $('#nav-generate').off().on('click', this.onSwitchGenerate.bind(this));
     $('.ui .item').on('click', function() {
       // $('.ui .item').removeClass('active');
       // $(this).addClass('active');
@@ -109,5 +111,18 @@ var App = {
       $('.ui.sidebar').sidebar('hide');
     }, 200);
   }, // onSwitchOrders()
+
+  // Switch to Generate screen
+  onSwitchGenerate(e) {
+    console.log('onSwitchGenerate()');
+
+    this._curScr = new ScreenGenerate(this);
+    this._curScr.setMainScreen();
+    this._curScr.setupEvents();
+    this._curScr.screenStart();
+    setTimeout(function() {
+      $('.ui.sidebar').sidebar('hide');
+    }, 200);
+  },
 
 };

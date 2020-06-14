@@ -9,6 +9,8 @@ const fetch = require('node-fetch');
 const extract = require('extract-zip');
 const ejs = require('ejs');
 const fs = require('fs');
+const path = require('path');
+const zip = require('express-easy-zip');
 
 const Keys = {
   Google: {
@@ -479,8 +481,8 @@ let MyCMS = {
     return redirectUri;
   }, // facebookOauth2()
 
-  async genStaticWebsite(params) {
-    let user = params.email.toLowerCase().trim();
+  async genStaticWebsite(req, res) {
+    let user = req.body.user.toLowerCase().trim();
     if (user == null) throw 'No user specified!';
 
     const ejsOpts = {};
@@ -492,39 +494,52 @@ let MyCMS = {
     let rendered;
     let outputFileNames = [];
 
+    let srcPath = `${__dirname}/${srcRootDir}/${user}`;
+    if (!fs.existsSync(srcPath)) {
+      fs.mkdirSync(srcPath);
+    } else {
+      // Remove all files before processing
+      let files = fs.readdirSync(srcPath);
+      for (let i = 0; i < files.length; ++i) {
+        fs.unlinkSync(path.join(srcPath, files[i]));
+      }
+    }
+    // Save the uploaded theme.zip to user directory & unzip it
+    const themePath = `${srcPath}/theme.zip`;
+    await req.files.theme.mv(themePath);
+    await extract(themePath, { dir: srcPath });
+
     // Check the required files existenace
-    const indexFilePath = `${__dirname}/${srcRootDir}/${user}/index.ejs`;
+    const indexFilePath = `${srcPath}/index.ejs`;
     if (!fs.existsSync(indexFilePath)) {
       throw 'index.ejs not exists!'
     }
-    const productFilePath = `${__dirname}/${srcRootDir}/${user}/product.ejs`;
+    const productFilePath = `${srcPath}/product.ejs`;
     if (!fs.existsSync(productFilePath)) {
       throw 'product.ejs not exists!'
     }
-    const checkoutFilePath = `${__dirname}/${srcRootDir}/${user}/checkout.ejs`;
+    const checkoutFilePath = `${srcPath}/checkout.ejs`;
     if (!fs.existsSync(checkoutFilePath)) {
       throw 'checkout.ejs not exists!'
     }
-    const orderSuccessFilePath = `${__dirname}/${srcRootDir}/${user}/order-success.ejs`;
+    const orderSuccessFilePath = `${srcPath}/order-success.ejs`;
     if (!fs.existsSync(orderSuccessFilePath)) {
       throw 'order-success.ejs not exists!'
     }
-    const orderCancelFilePath = `${__dirname}/${srcRootDir}/${user}/order-cancel.ejs`;
+    const orderCancelFilePath = `${srcPath}/order-cancel.ejs`;
     if (!fs.existsSync(orderCancelFilePath)) {
       throw 'order-cancel.ejs not exists!'
     }
 
-    // TODO: Extract the ZIP file into source dir. Such as /temp/[user-email]
-
     // Create the destination directory if not exists
-    let outPath = `${__dirname}/${dstRootDir}/${user}`;
-    if (!fs.existsSync(outPath)) {
-      fs.mkdirSync(outPath);
+    let dstPath = `${__dirname}/${dstRootDir}/${user}`;
+    if (!fs.existsSync(dstPath)) {
+      fs.mkdirSync(dstPath);
     }
-
+    
     // Handle the index.ejs
     rendered = await ejs.renderFile(indexFilePath, userJson, ejsOpts);
-    outFilePath = `${outPath}/index.html`;
+    outFilePath = `${dstPath}/index.html`;
     fs.writeFileSync(outFilePath, rendered);
     outputFileNames.push(outFilePath); // Add to zip files list
 
@@ -548,30 +563,47 @@ let MyCMS = {
         settings: userJson.settings
       };
       rendered = await ejs.renderFile(productFilePath, data, ejsOpts);
-      outFilePath = `${outPath}/${product.productId}.html`;
+      outFilePath = `${dstPath}/${product.productId}.html`;
       fs.writeFileSync(outFilePath, rendered);
       outputFileNames.push(outFilePath); // Add to zip files list
     }
 
     // Handle the checkout.ejs
     rendered = await ejs.renderFile(checkoutFilePath, userJson, ejsOpts);
-    outFilePath = `${outPath}/checkout.html`;
+    outFilePath = `${dstPath}/checkout.html`;
     fs.writeFileSync(outFilePath, rendered);
     outputFileNames.push(outFilePath); // Add to zip files list
 
     // Handle the order-success.ejs
     rendered = await ejs.renderFile(orderSuccessFilePath, userJson, ejsOpts);
-    outFilePath = `${outPath}/order-success.html`;
+    outFilePath = `${dstPath}/order-success.html`;
     fs.writeFileSync(outFilePath, rendered);
     outputFileNames.push(outFilePath); // Add to zip files list
 
     // Hanlde the order-cancel.ejs
     rendered = await ejs.renderFile(orderCancelFilePath, userJson, ejsOpts);
-    outFilePath = `${outPath}/order-cancel.html`;
+    outFilePath = `${dstPath}/order-cancel.html`;
     fs.writeFileSync(outFilePath, rendered);
     outputFileNames.push(outFilePath); // Add to zip files list
 
-    return 'Files generated success';
+    // Generate the ZIP and download response
+    let zipOpts = {
+      files: outputFileNames.map(f => {
+        return {
+          path: f,
+          name: path.basename(f)
+        }
+      }),
+      filename: 'static_website.zip'
+    };
+    res.zip(zipOpts).then(() => {
+      debugger;
+      // Remove all files after processing
+      let files = fs.readdirSync(dstPath);
+      for (let i = 0; i < files.length; ++i) {
+        fs.unlinkSync(path.join(dstPath, files[i]));
+      }
+    });
   }, // genStaticWebsite()
 
 } // MyCMS

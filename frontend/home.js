@@ -16,6 +16,7 @@ var Page = {
     // $('#btn-login-google').off().on('click', this.onBtnGoogleLogin.bind(this));
   },
 
+  /* Email/password login is disabled
   async onBtnLogin(e) {
     console.log('onBtnLogin()');
 
@@ -30,6 +31,7 @@ var Page = {
     await this.fetchLogin(email, password);
     $('#btn-login').removeClass('loading disabled');
   },
+  */
 
   async fetchLogin(email, password) {
     console.log('fetchLogin()');
