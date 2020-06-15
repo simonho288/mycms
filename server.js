@@ -187,4 +187,4 @@ if (process.env.NODE_ENV === 'development') {
   const bundler = new Bundler(indexFile, parcelOptions);
   app.use(bundler.middleware());
 }
-app.listen(port, () => console.log(`Development server app listening origin: ${process.env.SERVER_URL}`));
+app.listen(port, () => console.log(`Development server app listening origin: ${process.env.SERVER_URL} port:${port}`));
