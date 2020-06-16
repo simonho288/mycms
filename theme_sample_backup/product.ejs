@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyCMS Sample Theme (Reference Implementation)</title>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css'>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+  <style>
+    .container {
+      padding: 50px;
+    }
+  </style>
+</head>
+<body>
+  <div id="cart-icon" class="ui right aligned text container"></div>
+  <div class="ui center aligned text container product">
+    <h1 class="ui header"><%= product.name %></h1>
+    <p class="lead">
+      <%= product.description %>
+    </p>
+    <% product.images.forEach(function(image) { %>
+      <p>
+        <img src="<%= image %>" />
+      </p>
+    <% }); %>
+    <p>
+      <button class="ui primary button btn-add-cart" data-product-id="<%= product.productId %>" data-name="<%= product.name %>" data-regular-price="<%= product.regularPrice %>" data-sell-price="<%= product.sellPrice %>" data-tax="<%= product.tax %>">Add To Cart</button>
+    </p>
+  </div>
+
+  <script type="text/javascript" src="product.js"></script>
+</body>
+</html>

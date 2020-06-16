@@ -4,5 +4,6 @@ data/*
 dist/
 .vscode/launch.json
 .env
+.zip
 temp/*
 deploy.sh
