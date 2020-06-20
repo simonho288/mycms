@@ -24,13 +24,23 @@ const bodyParser = require('body-parser');
 const LocalStorage = require('node-localstorage').LocalStorage;
 const MyCMS = require('./mycms.js');
 
-const upload = multer({ dest: 'uploads/' }); // For image upload
 require('dotenv').config(); // Read the .env settings into env variable
 
-/**
- * In development, local Express server uses localStorage to simulate Cloudflare Workers KV as a database to store user JSON.
- */
+// Server-side localStorage to store user JSON.
 const localStorage = new LocalStorage('./data');
+
+// Multer disk storage
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads')
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.fieldname + '-' + Date.now())
+    }
+  })
+}); // For image upload
+
 const port = 3000; // Express Server port#
 
 // Setup Express server tools/libs
@@ -38,9 +48,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
 app.use(zip());
-app.use(fileUpload({
-  limits: { fileSize: 50 * 1024 * 1024 },
-}));
 app.use(cookieParser()); // need cookieParser middleware before we can do anything with cookies
 // app.use(express.static('frontend/dist')); // This is the parcelJS output dir. See below parcelOptions
 app.use(express.static('frontend/dist', {
@@ -176,8 +183,11 @@ app.get('/auth/facebook/callback', async (req, res) => {
   res.redirect(301, redirectUrl);
 });
 
-app.post('/post', upload.single('item'), (req, res, next) => {
-  req.file
+app.post('/upload_image', upload.single('myFile'), (req, res, next) => {
+  const file = req.file;
+  if (file) {
+    debugger
+  }
 });
 
 /**

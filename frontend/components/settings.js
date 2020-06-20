@@ -189,10 +189,10 @@ export class ScreenSettings {
     let paypalMode = isPaypalModeLive ? 'live' : 'sandbox';
 
     if (siteUrl == '') {
-      errorMsgs.push('Your online store URL cannot empty');
+      errorMsgs.push('The online store URL cannot empty');
     }
     if (!Util.testUrl(siteUrl)) {
-      errorMsgs.push('Your online store URL invalid format');
+      errorMsgs.push('The online store URL invalid format');
     }
     if (storeName == '') {
       errorMsgs.push('Store name cannot empty');
