@@ -15,7 +15,8 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser')
 const url = require('url');
 const zip = require('express-easy-zip');
-const fileUpload = require('express-fileupload');
+// const fileUpload = require('express-fileupload');
+const multer = require('multer');
 // const numeral = require('numeral');
 const app = express();
 const bodyParser = require('body-parser');
@@ -23,6 +24,7 @@ const bodyParser = require('body-parser');
 const LocalStorage = require('node-localstorage').LocalStorage;
 const MyCMS = require('./mycms.js');
 
+const upload = multer({ dest: 'uploads/' }); // For image upload
 require('dotenv').config(); // Read the .env settings into env variable
 
 /**
@@ -172,6 +174,10 @@ app.get('/auth/facebook/callback', async (req, res) => {
   let params = req.query;
   let redirectUrl = await MyCMS.facebookOauth2(params);
   res.redirect(301, redirectUrl);
+});
+
+app.post('/post', upload.single('item'), (req, res, next) => {
+  req.file
 });
 
 /**
