@@ -254,6 +254,31 @@ export let Util = {
     });
   }, // initAwsS3()
 
+  // Upload the blob to Nodejs backend /upload_image
+  async uploadBlob(s3, folderName, fileName, datum) {
+    console.log('uploadBlob()');
+    console.assert(s3);
+    console.assert(folderName);
+    console.assert(fileName);
+    console.assert(datum);
+
+    let formData = new FormData();
+    formData.append('prodimg', datum);
+    // formData.append('folder', folderName);
+    // formData.append('file', fileName);
+
+    let param = `dir=${folderName}&file=${fileName}`;
+    let res = await fetch('/upload_image?' + param, {
+      method: 'post',
+      // header: {
+      //   'Content-Type': 'multipart/form-data'
+      // },
+      body: formData
+    });
+
+    return await res.json();
+  }, // uploadBlob()
+
   uploadBlobToS3(s3, folderName, fileName, datum) {
     console.log('uploadBlobToS3()');
     console.assert(s3);

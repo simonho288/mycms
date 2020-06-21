@@ -709,8 +709,9 @@ export class ScreenProducts {
         let file = input.files[0];
         let reader = new FileReader();
         reader.onload = async function(e) {
-          let blob = await Util.resizeFileInputImageToBlob(this.result, 800)
-          let result = await Util.uploadBlobToS3(s3, folderName, fileName, blob);
+          let blob = await Util.resizeFileInputImageToBlob(this.result, 800);
+          // let result = await Util.uploadBlobToS3(s3, folderName, fileName, blob);
+          let result = await Util.uploadBlob(s3, folderName, fileName, blob);
           resolve(result);
         }
         reader.onerror = function(err) {

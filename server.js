@@ -17,6 +17,10 @@ const url = require('url');
 const zip = require('express-easy-zip');
 // const fileUpload = require('express-fileupload');
 const multer = require('multer');
+const multerS3 = require('multer-s3');
+const AWS = require('aws-sdk');
+const stream = require('stream');
+
 // const numeral = require('numeral');
 const app = express();
 const bodyParser = require('body-parser');
@@ -29,22 +33,10 @@ require('dotenv').config(); // Read the .env settings into env variable
 // Server-side localStorage to store user JSON.
 const localStorage = new LocalStorage('./data');
 
-// Multer disk storage
-const upload = multer({
-  storage: multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, 'uploads')
-    },
-    filename: function (req, file, cb) {
-      cb(null, file.fieldname + '-' + Date.now())
-    }
-  })
-}); // For image upload
-
 const port = 3000; // Express Server port#
 
 // Setup Express server tools/libs
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
 app.use(zip());
@@ -183,11 +175,63 @@ app.get('/auth/facebook/callback', async (req, res) => {
   res.redirect(301, redirectUrl);
 });
 
-app.post('/upload_image', upload.single('myFile'), (req, res, next) => {
+// Multer disk storage
+// const upload = multer({
+//   storage: multer.diskStorage({
+//     destination: 'uploads',
+//     filename: function (req, file, cb) {
+//       debugger
+//       cb(null, file.fieldname + '-' + Date.now())
+//     }
+//   })
+// }); // For image upload
+// Upload to DigitalOcean Spaces (AWS S3 compatiable)
+// Ref: https://www.digitalocean.com/community/tutorials/how-to-upload-a-file-to-object-storage-with-node-js
+let s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  endpoint: new AWS.Endpoint(process.env.AWS_S3_ENDPOINT),
+});
+app.post('/upload_image', (req, res) => {
   const file = req.file;
-  if (file) {
-    debugger
-  }
+  const params = req.query;
+  if (params.dir == null) throw 'Missing querystring dir!';
+  if (params.file == null) throw 'Missing querystring file!';
+
+  const bucket = process.env.AWS_S3_BUCKET;
+  const edgeEndpoint = process.env.AWS_S3_EDGE_ENDPOINT;
+  if (bucket == null) throw 'Environment variable "AWS_S3_BUCKET" not defined!';
+  if (params.file == null) throw 'Environment variable "AWS_S3_EDGE_ENDPOINT" not defined!';
+  const upload = multer({
+    storage: multerS3({
+      s3: s3,
+      bucket: bucket,
+      acl: 'public-read',
+      contentType: (req, file, cb) => {
+        file.stream.once('data', function (firstChunk) {
+          let outStream = new stream.PassThrough();
+          outStream.write(firstChunk);
+          file.stream.pipe(outStream);
+          cb(null, 'image/jpeg', outStream);
+        });
+      },
+      // metadata: function (req, file, cb) {
+      //   cb(null, Object.assign({}, req.body));
+      // },
+      key: function(req, file, cb) {
+        cb(null, `mycms/${req.query.dir}/${req.query.file}`);
+      }
+    })
+  }).single('prodimg');
+  upload(req, res, (err) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    res.json({
+      Location: `http://${bucket}.${edgeEndpoint}/mycms/${req.query.dir}/${req.query.file}`
+    });
+  });
 });
 
 /**
