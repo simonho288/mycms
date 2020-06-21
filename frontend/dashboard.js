@@ -7,6 +7,7 @@ import { ScreenGenerate } from './components/generate.js';
 import { Util } from './util.js';
 
 $(document).ready(function() {
+  alertify.set('notifier', 'delay', 20);
   App.init();
 });
 

@@ -175,17 +175,7 @@ app.get('/auth/facebook/callback', async (req, res) => {
   res.redirect(301, redirectUrl);
 });
 
-// Multer disk storage
-// const upload = multer({
-//   storage: multer.diskStorage({
-//     destination: 'uploads',
-//     filename: function (req, file, cb) {
-//       debugger
-//       cb(null, file.fieldname + '-' + Date.now())
-//     }
-//   })
-// }); // For image upload
-// Upload to DigitalOcean Spaces (AWS S3 compatiable)
+// Upload image to DigitalOcean Spaces (AWS S3 compatible)
 // Ref: https://www.digitalocean.com/community/tutorials/how-to-upload-a-file-to-object-storage-with-node-js
 let s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -195,13 +185,14 @@ let s3 = new AWS.S3({
 app.post('/upload_image', (req, res) => {
   const file = req.file;
   const params = req.query;
-  if (params.dir == null) throw 'Missing querystring dir!';
-  if (params.file == null) throw 'Missing querystring file!';
-
   const bucket = process.env.AWS_S3_BUCKET;
   const edgeEndpoint = process.env.AWS_S3_EDGE_ENDPOINT;
+  if (params.dir == null) throw 'Missing querystring dir!';
+  if (params.file == null) throw 'Missing querystring file!';
   if (bucket == null) throw 'Environment variable "AWS_S3_BUCKET" not defined!';
   if (params.file == null) throw 'Environment variable "AWS_S3_EDGE_ENDPOINT" not defined!';
+
+  // Create an upload function
   const upload = multer({
     storage: multerS3({
       s3: s3,
@@ -215,22 +206,36 @@ app.post('/upload_image', (req, res) => {
           cb(null, 'image/jpeg', outStream);
         });
       },
-      // metadata: function (req, file, cb) {
-      //   cb(null, Object.assign({}, req.body));
-      // },
       key: function(req, file, cb) {
         cb(null, `mycms/${req.query.dir}/${req.query.file}`);
       }
     })
   }).single('prodimg');
+
+  // Perform the upload
   upload(req, res, (err) => {
     if (err) {
       console.log(err);
       return;
     }
+    // Return the URL of the uploaded file to frontend
     res.json({
-      Location: `http://${bucket}.${edgeEndpoint}/mycms/${req.query.dir}/${req.query.file}`
+      Location: `https://${bucket}.${edgeEndpoint}/mycms/${req.query.dir}/${req.query.file}`
     });
+  });
+});
+
+// Delete an image object from DigitalOcean Spaces (AWS S3 compatible)
+app.delete('/delete_image', (req, res) => {
+  let params = {
+    Bucket: process.env.AWS_S3_BUCKET, 
+    Key: 'mycms/' + req.query.key
+  };
+  // S3 doc: https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#deleteObject-property
+  s3.deleteObject(params, function(err, data) {
+    if (err)
+      throw err;
+    res.json(data);
   });
 });
 

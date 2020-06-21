@@ -218,6 +218,7 @@ export let Util = {
     return userRec;
   }, // getUserRecord()
 
+  /*
   // Requires AWS script:
   // <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
   // Must configured AWS Cognito "My CMS":
@@ -253,32 +254,29 @@ export let Util = {
       resolve(s3);
     });
   }, // initAwsS3()
+  */
 
   // Upload the blob to Nodejs backend /upload_image
-  async uploadBlob(s3, folderName, fileName, datum) {
+  async uploadBlob(folderName, fileName, datum) {
     console.log('uploadBlob()');
-    console.assert(s3);
     console.assert(folderName);
     console.assert(fileName);
     console.assert(datum);
 
+    // The upload data store in FormData
     let formData = new FormData();
     formData.append('prodimg', datum);
-    // formData.append('folder', folderName);
-    // formData.append('file', fileName);
 
-    let param = `dir=${folderName}&file=${fileName}`;
-    let res = await fetch('/upload_image?' + param, {
+    // Tells the backend the directory & file name
+    let res = await fetch(`/upload_image?dir=${folderName}&file=${fileName}`, {
       method: 'post',
-      // header: {
-      //   'Content-Type': 'multipart/form-data'
-      // },
       body: formData
     });
 
     return await res.json();
   }, // uploadBlob()
 
+  /*
   uploadBlobToS3(s3, folderName, fileName, datum) {
     console.log('uploadBlobToS3()');
     console.assert(s3);
@@ -304,34 +302,24 @@ export let Util = {
       });
     });
   }, // uploadBlobToS3()
+  */
 
-  async removeS3File(s3, filePath) {
+  async removeS3File(filePath) {
     console.log('removeS3File()');
-    console.assert(s3);
     console.assert(filePath);
 
-    return new Promise((resolve, reject) => {
-      let param = {
-        Key: filePath
-      };
-      s3.deleteObject(param, function(err, result) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result);
-        }
-      });
+    let res = await fetch(`/delete_image?key=${filePath}`, {
+      method: 'delete'
     });
+    res = await res.json();
+    return res;
   }, // removeS3File()
 
   s3PathToKey(url) {
     console.log('s3PathToKey()');
     console.assert(url);
 
-    const domain = 'upload.mycms.simonho.net';
-    let si = url.indexOf(domain);
-    let key = url.substring(si + domain.length + 1, url.length); // remove the 1st '/' in key
-    return key;
+    return url.substring(url.indexOf('userdata/'))
   }, // s3PathToKey()
 
   formatNumber(n) {

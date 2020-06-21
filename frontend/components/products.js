@@ -381,60 +381,59 @@ export class ScreenProducts {
       this._curProduct.sellPrice = sellPrice;
       this._curProduct.tax = tax;
       this._curProduct.isActive = isActive;
-      let s3 = await Util.initAwsS3();
       if (image0) {
         if (this._curProduct.image0) {
           let key = Util.s3PathToKey(this._curProduct.image0);
-          await Util.removeS3File(s3, key);
+          await Util.removeS3File(key);
         }
         this._curProduct.image0 = image0;
       }
       if (image1) {
         if (this._curProduct.image1) {
           let key = Util.s3PathToKey(this._curProduct.image1);
-          await Util.removeS3File(s3, key);
+          await Util.removeS3File(key);
         }
         this._curProduct.image1 = image1;
       }
       if (image2) {
         if (this._curProduct.image2) {
           let key = Util.s3PathToKey(this._curProduct.image2);
-          await Util.removeS3File(s3, key);
+          await Util.removeS3File(key);
         }
         this._curProduct.image2 = image2;
       }
       if (image3) {
         if (this._curProduct.image3) {
           let key = Util.s3PathToKey(this._curProduct.image3);
-          await Util.removeS3File(s3, key);
+          await Util.removeS3File(key);
         }
         this._curProduct.image3 = image3;
       }
       if (image4) {
         if (this._curProduct.image4) {
           let key = Util.s3PathToKey(this._curProduct.image4);
-          await Util.removeS3File(s3, key);
+          await Util.removeS3File(key);
         }
         this._curProduct.image4 = image4;
       }
       if (image5) {
         if (this._curProduct.image5) {
           let key = Util.s3PathToKey(this._curProduct.image5);
-          await Util.removeS3File(s3, key);
+          await Util.removeS3File(key);
         }
         this._curProduct.image5 = image5;
       }
       if (image6) {
         if (this._curProduct.image6) {
           let key = Util.s3PathToKey(this._curProduct.image6);
-          await Util.removeS3File(s3, key);
+          await Util.removeS3File(key);
         }
         this._curProduct.image6 = image6;
       }
       if (image7) {
         if (this._curProduct.image7) {
           let key = Util.s3PathToKey(this._curProduct.image7);
-          await Util.removeS3File(s3, key);
+          await Util.removeS3File(key);
         }
         this._curProduct.image7 = image7;
       }
@@ -498,12 +497,12 @@ export class ScreenProducts {
     let imageNum = $(e.currentTarget).data('image-num');
     let image = this._curProduct[`image${imageNum}`];
     if (image) {
-      let s3 = await Util.initAwsS3();
       let imgUrl = this._curProduct[`image${imageNum}`];
       let key = Util.s3PathToKey(imgUrl);
-      let resp = await Util.removeS3File(s3, key);
+      let resp = await Util.removeS3File(key);
       this._curProduct[`image${imageNum}`] = null;
       $(`#img-preview${imageNum}`).attr('src', ' ');
+      alertify.warning('Image deleted successfully. Note that it was cached as long as 1 hour. So you may not see the image changes immediately'); // https://alertifyjs.com/
     }
   } // onRemoveProdImgClick()
 
@@ -659,26 +658,25 @@ export class ScreenProducts {
   async uploadProductImages(productId) {
     console.log('uploadProductImages()');
 
-    let s3 = await Util.initAwsS3();
     let $form = $('#product-input-form');
 
     // Process the photos
     let $image0 = $form.find('input[name="input-image-0"]');
-    let s3result0 = await this.resizeImageAndUpload(s3, $image0[0], productId, '00');
+    let s3result0 = await this.resizeImageAndUpload($image0[0], productId, '00');
     let $image1 = $form.find('input[name="input-image-1"]');
-    let s3result1 = await this.resizeImageAndUpload(s3, $image1[0], productId, '01');
+    let s3result1 = await this.resizeImageAndUpload($image1[0], productId, '01');
     let $image2 = $form.find('input[name="input-image-2"]');
-    let s3result2 = await this.resizeImageAndUpload(s3, $image2[0], productId, '02');
+    let s3result2 = await this.resizeImageAndUpload($image2[0], productId, '02');
     let $image3 = $form.find('input[name="input-image-3"]');
-    let s3result3 = await this.resizeImageAndUpload(s3, $image3[0], productId, '03');
+    let s3result3 = await this.resizeImageAndUpload($image3[0], productId, '03');
     let $image4 = $form.find('input[name="input-image-4"]');
-    let s3result4 = await this.resizeImageAndUpload(s3, $image4[0], productId, '04');
+    let s3result4 = await this.resizeImageAndUpload($image4[0], productId, '04');
     let $image5 = $form.find('input[name="input-image-5"]');
-    let s3result5 = await this.resizeImageAndUpload(s3, $image5[0], productId, '05');
+    let s3result5 = await this.resizeImageAndUpload($image5[0], productId, '05');
     let $image6 = $form.find('input[name="input-image-6"]');
-    let s3result6 = await this.resizeImageAndUpload(s3, $image6[0], productId, '06');
+    let s3result6 = await this.resizeImageAndUpload($image6[0], productId, '06');
     let $image7 = $form.find('input[name="input-image-7"]');
-    let s3result7 = await this.resizeImageAndUpload(s3, $image7[0], productId, '07');
+    let s3result7 = await this.resizeImageAndUpload($image7[0], productId, '07');
 
     let image0 = s3result0 ? s3result0.Location : null;
     let image1 = s3result1 ? s3result1.Location : null;
@@ -692,9 +690,8 @@ export class ScreenProducts {
     return { image0, image1, image2, image3, image4, image5, image6, image7 };
   } // uploadProductImages()
 
-  async resizeImageAndUpload(s3, input, productId, imageNum) {
+  async resizeImageAndUpload(input, productId, imageNum) {
     console.log('resizeImageAndUpload()');
-    console.assert(s3);
     console.assert(input);
     console.assert(productId);
     console.assert(imageNum);
@@ -710,8 +707,7 @@ export class ScreenProducts {
         let reader = new FileReader();
         reader.onload = async function(e) {
           let blob = await Util.resizeFileInputImageToBlob(this.result, 800);
-          // let result = await Util.uploadBlobToS3(s3, folderName, fileName, blob);
-          let result = await Util.uploadBlob(s3, folderName, fileName, blob);
+          let result = await Util.uploadBlob(folderName, fileName, blob);
           resolve(result);
         }
         reader.onerror = function(err) {
@@ -741,41 +737,37 @@ export class ScreenProducts {
     console.log('deleteAllProductImages()');
     console.assert(product);
 
-    const domain = 'upload.mycms.simonho.net';
-    let imgUrl, si, key, resp;
-
-    let s3 = await Util.initAwsS3();
     if (product.image0) {
       let key = Util.s3PathToKey(product.image0);
-      resp = await Util.removeS3File(s3, key);
+      resp = await Util.removeS3File(key);
     }
     if (product.image1) {
       let key = Util.s3PathToKey(product.image1);
-      resp = await Util.removeS3File(s3, key);
+      resp = await Util.removeS3File(key);
     }
     if (product.image2) {
       let key = Util.s3PathToKey(product.image2);
-      resp = await Util.removeS3File(s3, key);
+      resp = await Util.removeS3File(key);
     }
     if (product.image3) {
       let key = Util.s3PathToKey(product.image3);
-      resp = await Util.removeS3File(s3, key);
+      resp = await Util.removeS3File(key);
     }
     if (product.image4) {
       let key = Util.s3PathToKey(product.image4);
-      resp = await Util.removeS3File(s3, key);
+      resp = await Util.removeS3File(key);
     }
     if (product.image5) {
       let key = Util.s3PathToKey(product.image5);
-      resp = await Util.removeS3File(s3, key);
+      resp = await Util.removeS3File(key);
     }
     if (product.image6) {
       let key = Util.s3PathToKey(product.image6);
-      resp = await Util.removeS3File(s3, key);
+      resp = await Util.removeS3File(key);
     }
     if (product.image7) {
       let key = Util.s3PathToKey(product.image7);
-      resp = await Util.removeS3File(s3, key);
+      resp = await Util.removeS3File(key);
     }
   } // deleteAllProductImages()
 
