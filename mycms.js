@@ -481,9 +481,8 @@ let MyCMS = {
     return redirectUri;
   }, // facebookOauth2()
 
-  async genStaticWebsite(req, res) {
+  async genStaticWebsite(user, req, res) {
     try {
-      let user = req.body.user.toLowerCase().trim();
       if (user == null) throw 'No user specified!';
 
       const ejsOpts = {};
@@ -615,6 +614,7 @@ let MyCMS = {
         }
       });
     } catch (exp) {
+      console.error(exp.message);
       res.status(400);
       res.send(exp);
     }

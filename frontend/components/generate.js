@@ -5,12 +5,9 @@ import { Util } from '../util.js';
 const template = `
 <div id="generate-page-div">
   <div id="generate-page-main-func" class="ui container">
-    <form method="post" action="/api/gen-static-website" class="ui form big attached fluid segment" enctype="multipart/form-data">
+    <form method="post" action="/api/gen-static-website/{{user_id}}" class="ui form big attached fluid segment" enctype="multipart/form-data">
       <div class="field">
         <input type="file" name="theme" required />
-      </div>
-      <div class="field">
-        <input type="hidden" name="user" value="{{user_id}}" />
       </div>
       <div class="field">
         <input class="ui primary button" type="submit" value="Upload Theme (5MB max.)">
