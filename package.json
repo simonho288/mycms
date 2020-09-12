@@ -33,7 +33,7 @@
     "format": "^0.2.2",
     "multer": "^1.4.2",
     "multer-s3": "^2.9.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "numeral": "^2.0.6",
     "uuid": "^7.0.3"
   },
