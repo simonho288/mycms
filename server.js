@@ -32,7 +32,7 @@ require('dotenv').config(); // Read the .env settings into env variable
 // Server-side localStorage to store user JSON.
 const localStorage = new LocalStorage('./data');
 
-const port = 3000; // Express Server port#
+const port = process.env.PORT || 3000; // Express Server port#
 
 // Setup Express server tools/libs
 app.use(bodyParser.urlencoded({ extended: true }));
